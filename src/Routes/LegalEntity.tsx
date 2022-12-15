@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { MRT_Localization_RU } from 'material-react-table/locales/ru';
 import MaterialReactTable, {
   MaterialReactTableProps,
@@ -21,33 +21,39 @@ import {
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 import { data, states } from '../Components/makeData';
+import { Client, LegalEntityVm } from '../apiClients';
 
-export type LegalEntity = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  vote: number;
-  state:string;
-};
-
-const Example: FC = () => {
+const LegalEntityVmTable: FC = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [tableData, setTableData] = useState<LegalEntity[]>(() => data);
+  const [tableData, setTableData] = useState<LegalEntityVm[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
 
-  const handleCreateNewRow = (values: LegalEntity) => {
-    tableData.push(values);
-    setTableData([...tableData]);
+  const apiClient = new Client('http://localhost:5200');
+
+  useEffect(() => {
+    const fetchLegalEntities = async () => {
+      const legalEntitiesResp = await apiClient.legalEntityGET();
+      setTableData(legalEntitiesResp.data ?? []);
+    };
+    fetchLegalEntities();
+  }, []);
+
+  const handleCreateNewRow = async (model: LegalEntityVm) => {
+    model.id = 0;
+    const createLegalEntityResp = await apiClient.legalEntityPOST(model);
+    const newLegalEntity = createLegalEntityResp.data;
+    if (newLegalEntity) {
+      setTableData([...[newLegalEntity!].concat(tableData)]);
+    }
   };
 
-  const handleSaveRowEdits: MaterialReactTableProps<LegalEntity>['onEditingRowSave'] =
+  const handleSaveRowEdits: MaterialReactTableProps<LegalEntityVm>['onEditingRowSave'] =
     async ({ exitEditingMode, row, values }) => {
       if (!Object.keys(validationErrors).length) {
         tableData[row.index] = values;
-        //send/receive api updates here, then refetch or update local table data for re-render
+        await apiClient.legalEntityPOST(tableData[row.index]);
         setTableData([...tableData]);
         exitEditingMode(); //required to exit editing mode and close modal
       }
@@ -58,13 +64,15 @@ const Example: FC = () => {
   };
 
   const handleDeleteRow = useCallback(
-    (row: MRT_Row<LegalEntity>) => {
+    async (row: MRT_Row<LegalEntityVm>) => {
       if (
-        window.confirm(`Вы уверены, что хотите удалить ${row.getValue('firstName')}`)
+        !window.confirm(`Вы уверены, что хотите удалить ${row.getValue('name')}`)
       ) {
         return;
       }
-      //send api delete request here, then refetch or update local table data for re-render
+      
+      await apiClient.legalEntityDELETE(row.getValue('id'));
+
       tableData.splice(row.index, 1);
       setTableData([...tableData]);
     },
@@ -73,8 +81,8 @@ const Example: FC = () => {
 
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<LegalEntity>,
-    ): MRT_ColumnDef<LegalEntity>['muiTableBodyCellEditTextFieldProps'] => {
+      cell: MRT_Cell<LegalEntityVm>,
+    ): MRT_ColumnDef<LegalEntityVm>['muiTableBodyCellEditTextFieldProps'] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
@@ -104,20 +112,27 @@ const Example: FC = () => {
     [validationErrors],
   );
 
-  const columns = useMemo<MRT_ColumnDef<LegalEntity>[]>(
+  const columns = useMemo<MRT_ColumnDef<LegalEntityVm>[]>(
     () => [
-      
       {
-        accessorKey: 'firstName',
-        header: 'Имя',
+        accessorKey: 'id',
+        header: 'Id',
+        size: 20,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
+      },
+      {
+        accessorKey: 'name',
+        header: 'Название',
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
         }),
       },
       {
-        accessorKey: 'lastName',
-        header: 'Фамилия',
+        accessorKey: 'votes',
+        header: 'Голоса',
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
@@ -167,7 +182,7 @@ const Example: FC = () => {
             onClick={() => setCreateModalOpen(true)}
             variant="contained"
           >
-            Добавить Юридическое лицо
+            Добавить
           </Button>
         )}
       />
@@ -183,9 +198,9 @@ const Example: FC = () => {
 
 //example of creating a mui dialog modal for creating new rows
 export const CreateNewAccountModal: FC<{
-  columns: MRT_ColumnDef<LegalEntity>[];
+  columns: MRT_ColumnDef<LegalEntityVm>[];
   onClose: () => void;
-  onSubmit: (values: LegalEntity) => void;
+  onSubmit: (values: LegalEntityVm) => void;
   open: boolean;
 }> = ({ open, columns, onClose, onSubmit }) => {
   const [values, setValues] = useState<any>(() =>
@@ -203,7 +218,7 @@ export const CreateNewAccountModal: FC<{
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign="center">Добавить Юридическое лицо</DialogTitle>
+      <DialogTitle textAlign="center">Добавление Юр. Лицо</DialogTitle>
       <DialogContent>
         <form onSubmit={(e) => e.preventDefault()}>
           <Stack
@@ -213,7 +228,7 @@ export const CreateNewAccountModal: FC<{
               gap: '1.5rem',
             }}
           >
-            {columns.map((column) => (
+            {columns.filter(c => c.accessorKey !== 'id').map((column) => (
               <TextField
                 key={column.accessorKey}
                 label={column.header}
@@ -246,4 +261,4 @@ const validateEmail = (email: string) =>
     );
 const validateAge = (vote: number) => vote >= 18 && vote <= 50;
 
-export default Example;
+export default LegalEntityVmTable;

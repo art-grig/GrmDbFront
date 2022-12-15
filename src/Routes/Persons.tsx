@@ -31,7 +31,7 @@ export type Person = {
   state:string;
 };
 
-const Example: FC = () => {
+const PersonsTable: FC = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [tableData, setTableData] = useState<Person[]>(() => data);
   const [validationErrors, setValidationErrors] = useState<{
@@ -246,4 +246,4 @@ const validateEmail = (email: string) =>
     );
 const validateAge = (vote: number) => vote >= 18 && vote <= 50;
 
-export default Example;
+export default PersonsTable;
