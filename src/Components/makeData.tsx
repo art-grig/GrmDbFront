@@ -1,5 +1,5 @@
-import { Person } from "../Routes/Table";
-export const data: Person[] = [
+import { TableList } from "../Routes/Table";
+export const data: TableList[] = [
   {
     id: '9s41rp',
     firstName: 'Kelvin',

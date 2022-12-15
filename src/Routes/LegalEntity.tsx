@@ -1,194 +1,249 @@
-import React, {
-    FC,
-    UIEvent,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from 'react';
-import MaterialReactTable, { MRT_ColumnDef } from 'material-react-table';
-import { Typography } from '@mui/material';
-import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
-import '../Components/Styles/style.css'
-import type { Virtualizer } from '@tanstack/react-virtual';
-import {
-    QueryClient,
-    QueryClientProvider,
-    useInfiniteQuery,
-} from '@tanstack/react-query';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 import { MRT_Localization_RU } from 'material-react-table/locales/ru';
+import MaterialReactTable, {
+  MaterialReactTableProps,
+  MRT_Cell,
+  MRT_ColumnDef,
+  MRT_Row,
+} from 'material-react-table';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  MenuItem,
+  Stack,
+  TextField,
+  Tooltip,
+} from '@mui/material';
+import { Delete, Edit } from '@mui/icons-material';
+import { data, states } from '../Components/makeData';
 
-
-type UserApiResponse = {
-    data: Array<User>;
-    meta: {
-        totalRowCount: number;
-    };
+export type LegalEntity = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  vote: number;
+  state:string;
 };
-
-
-type User = {
-    firstName: string;
-    lastName: string;
-    address: string;
-    state: string;
-};
-
-const columns = [
-    {
-        accessorKey: 'firstName',
-        header: 'First Name',
-    },
-    {
-        accessorKey: 'lastName',
-        header: 'Last Name',
-    },
-    {
-        accessorKey: 'state',
-        header: 'State',
-    },
-
-];
-
-
-
-const fetchSize = 25;
 
 const Example: FC = () => {
- 
-  
-    const tableContainerRef = useRef<HTMLDivElement>(null); //we can get access to the underlying TableContainer element and react to its scroll events
-    const virtualizerInstanceRef =
-        useRef<Virtualizer<HTMLDivElement, HTMLTableRowElement>>(null); //we can get access to the underlying Virtualizer instance and call its scrollToIndex method
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [tableData, setTableData] = useState<LegalEntity[]>(() => data);
+  const [validationErrors, setValidationErrors] = useState<{
+    [cellId: string]: string;
+  }>({});
 
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [globalFilter, setGlobalFilter] = useState<string>();
-    const [sorting, setSorting] = useState<SortingState>([]);
+  const handleCreateNewRow = (values: LegalEntity) => {
+    tableData.push(values);
+    setTableData([...tableData]);
+  };
 
-    const { data, fetchNextPage, isError, isFetching, isLoading } =
-        useInfiniteQuery<UserApiResponse>(
-            ['table-data', columnFilters, globalFilter, sorting],
-            async ({ pageParam = 0 }) => {
-                const url = new URL(
-                    '/api/data',
-                    process.env.NODE_ENV === 'production'
-                        ? 'https://www.material-react-table.com'
-                        : 'http://localhost:3000',
-                );
-                url.searchParams.set('start', `${pageParam * fetchSize}`);
-                url.searchParams.set('size', `${fetchSize}`);
-                url.searchParams.set('filters', JSON.stringify(columnFilters ?? []));
-                url.searchParams.set('globalFilter', globalFilter ?? '');
-                url.searchParams.set('sorting', JSON.stringify(sorting ?? []));
+  const handleSaveRowEdits: MaterialReactTableProps<LegalEntity>['onEditingRowSave'] =
+    async ({ exitEditingMode, row, values }) => {
+      if (!Object.keys(validationErrors).length) {
+        tableData[row.index] = values;
+        //send/receive api updates here, then refetch or update local table data for re-render
+        setTableData([...tableData]);
+        exitEditingMode(); //required to exit editing mode and close modal
+      }
+    };
 
-                const response = await fetch(url.href);
-                const json = (await response.json()) as UserApiResponse;
-                return json;
-            },
-            {
-                getNextPageParam: (_lastGroup: any, groups: string | any[]) => groups.length,
-                keepPreviousData: true,
-                refetchOnWindowFocus: false,
-            },
-        );
+  const handleCancelRowEdits = () => {
+    setValidationErrors({});
+  };
 
-    const flatData = useMemo(
-        () => data?.pages.flatMap((page: { data: any; }) => page.data) ?? [],
-        [data],
-    );
+  const handleDeleteRow = useCallback(
+    (row: MRT_Row<LegalEntity>) => {
+      if (
+        window.confirm(`Вы уверены, что хотите удалить ${row.getValue('firstName')}`)
+      ) {
+        return;
+      }
+      //send api delete request here, then refetch or update local table data for re-render
+      tableData.splice(row.index, 1);
+      setTableData([...tableData]);
+    },
+    [tableData],
+  );
 
-    const totalDBRowCount = data?.pages?.[0]?.meta?.totalRowCount ?? 0;
-    const totalFetched = flatData.length;
-
-    //called on scroll and possibly on mount to fetch more data as the user scrolls and reaches bottom of table
-    const fetchMoreOnBottomReached = useCallback(
-        (containerRefElement?: HTMLDivElement | null) => {
-            if (containerRefElement) {
-                const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
-                //once the user has scrolled within 200px of the bottom of the table, fetch more data if we can
-                if (
-                    scrollHeight - scrollTop - clientHeight < 200 &&
-                    !isFetching &&
-                    totalFetched < totalDBRowCount
-                ) {
-                    fetchNextPage();
-                }
-            }
+  const getCommonEditTextFieldProps = useCallback(
+    (
+      cell: MRT_Cell<LegalEntity>,
+    ): MRT_ColumnDef<LegalEntity>['muiTableBodyCellEditTextFieldProps'] => {
+      return {
+        error: !!validationErrors[cell.id],
+        helperText: validationErrors[cell.id],
+        onBlur: (event) => {
+          const isValid =
+            cell.column.id === 'email'
+              ? validateEmail(event.target.value)
+              : cell.column.id === 'vote'
+              ? validateAge(+event.target.value)
+              : validateRequired(event.target.value);
+          if (!isValid) {
+            //set validation error for cell if invalid
+            setValidationErrors({
+              ...validationErrors,
+              [cell.id]: `${cell.column.columnDef.header} is required`,
+            });
+          } else {
+            //remove validation error for cell if valid
+            delete validationErrors[cell.id];
+            setValidationErrors({
+              ...validationErrors,
+            });
+          }
         },
-        [fetchNextPage, isFetching, totalFetched, totalDBRowCount],
-    );
+      };
+    },
+    [validationErrors],
+  );
 
-    //scroll to top of table when sorting or filters change
-    useEffect(() => {
-        if (virtualizerInstanceRef.current) {
-            virtualizerInstanceRef.current.scrollToIndex(0);
-        }
-    }, [sorting, columnFilters, globalFilter]);
+  const columns = useMemo<MRT_ColumnDef<LegalEntity>[]>(
+    () => [
+      
+      {
+        accessorKey: 'firstName',
+        header: 'Имя',
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
+      },
+      {
+        accessorKey: 'lastName',
+        header: 'Фамилия',
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
+      },
+     
+    ],
+    [getCommonEditTextFieldProps],
+  );
 
-    //a check on mount to see if the table is already scrolled to the bottom and immediately needs to fetch more data
-    useEffect(() => {
-        fetchMoreOnBottomReached(tableContainerRef.current);
-    }, [fetchMoreOnBottomReached]);
-
-    return (
-       
-        <MaterialReactTable
-            columns={columns}
-            data={flatData}
-            enablePagination={false}
-            enableRowNumbers
-            enableRowVirtualization //optional, but recommended if it is likely going to be more than 100 rows
-            manualFiltering
-            manualSorting
-            localization={MRT_Localization_RU}
-            muiTableContainerProps={{
-                ref: tableContainerRef, //get access to the table container element
-                sx: { maxHeight: '600px' }, //give the table a max height
-                onScroll: (
-                    event: UIEvent<HTMLDivElement>, //add an event listener to the table container element
-                ) => fetchMoreOnBottomReached(event.target as HTMLDivElement),
-            }}
-            muiToolbarAlertBannerProps={
-                isError
-                    ? {
-                        color: 'error',
-                        children: 'Error loading data',
-                    }
-                    : undefined
-            }
-            onColumnFiltersChange={setColumnFilters}
-            onGlobalFilterChange={setGlobalFilter}
-            onSortingChange={setSorting}
-            renderBottomToolbarCustomActions={() => (
-                <Typography>
-                    Fetched {totalFetched} of {totalDBRowCount} total rows.
-                </Typography>
-            )}
-            state={{
-                columnFilters,
-                globalFilter,
-                isLoading,
-                showAlertBanner: isError,
-                showProgressBars: isFetching,
-                sorting,
-            }}
-            virtualizerInstanceRef={virtualizerInstanceRef} //get access to the virtualizer instance
-        />
-    );
+  return (
+    <>
+      <MaterialReactTable
+        displayColumnDefOptions={{
+          'mrt-row-actions': {
+            muiTableHeadCellProps: {
+              align: 'center',
+            },
+            size: 120,
+          },
+        }}
+        columns={columns}
+        data={tableData}
+        editingMode="modal" //default
+        enableColumnOrdering
+        enableEditing
+        onEditingRowSave={handleSaveRowEdits}
+        onEditingRowCancel={handleCancelRowEdits}
+        localization={MRT_Localization_RU}
+        renderRowActions={({ row, table }) => (
+          <Box sx={{ display: 'flex', gap: '1rem' }}>
+            <Tooltip arrow placement="left" title="Изменить">
+              <IconButton onClick={() => table.setEditingRow(row)}>
+                <Edit />
+              </IconButton>
+            </Tooltip>
+            <Tooltip arrow placement="right" title="Удалить">
+              <IconButton color="error" onClick={() => handleDeleteRow(row)}>
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
+        renderTopToolbarCustomActions={() => (
+          <Button
+            color="success"
+            onClick={() => setCreateModalOpen(true)}
+            variant="contained"
+          >
+            Добавить Юридическое лицо
+          </Button>
+        )}
+      />
+      <CreateNewAccountModal
+        columns={columns}
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSubmit={handleCreateNewRow}
+      />
+    </>
+  );
 };
 
-const queryClient = new QueryClient();
+//example of creating a mui dialog modal for creating new rows
+export const CreateNewAccountModal: FC<{
+  columns: MRT_ColumnDef<LegalEntity>[];
+  onClose: () => void;
+  onSubmit: (values: LegalEntity) => void;
+  open: boolean;
+}> = ({ open, columns, onClose, onSubmit }) => {
+  const [values, setValues] = useState<any>(() =>
+    columns.reduce((acc, column) => {
+      acc[column.accessorKey ?? ''] = '';
+      return acc;
+    }, {} as any),
+  );
 
-const ExampleWithReactQueryProvider = () => (
-    <QueryClientProvider client={queryClient}>
-        <>
-        <div className="legalEntity">
-        <h1>Юридические Лица</h1>
-        </div>
-        </>
-        <Example />
-    </QueryClientProvider>
-);
+  const handleSubmit = () => {
+    //put your validation logic here
+    onSubmit(values);
+    onClose();
+  };
 
-export default ExampleWithReactQueryProvider;
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign="center">Добавить Юридическое лицо</DialogTitle>
+      <DialogContent>
+        <form onSubmit={(e) => e.preventDefault()}>
+          <Stack
+            sx={{
+              width: '100%',
+              minWidth: { xs: '300px', sm: '360px', md: '400px' },
+              gap: '1.5rem',
+            }}
+          >
+            {columns.map((column) => (
+              <TextField
+                key={column.accessorKey}
+                label={column.header}
+                name={column.accessorKey}
+                onChange={(e) =>
+                  setValues({ ...values, [e.target.name]: e.target.value })
+                }
+              />
+            ))}
+          </Stack>
+        </form>
+      </DialogContent>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Отмена</Button>
+        <Button color="secondary" onClick={handleSubmit} variant="contained">
+        Добавить
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const validateRequired = (value: string) => !!value.length;
+const validateEmail = (email: string) =>
+  !!email.length &&
+  email
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    );
+const validateAge = (vote: number) => vote >= 18 && vote <= 50;
+
+export default Example;

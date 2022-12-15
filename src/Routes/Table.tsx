@@ -22,7 +22,7 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import { data, states } from '../Components/makeData';
 
-export type Person = {
+export type TableList = {
   id: string;
   firstName: string;
   lastName: string;
@@ -33,17 +33,17 @@ export type Person = {
 
 const Example: FC = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [tableData, setTableData] = useState<Person[]>(() => data);
+  const [tableData, setTableData] = useState<TableList[]>(() => data);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
 
-  const handleCreateNewRow = (values: Person) => {
+  const handleCreateNewRow = (values: TableList) => {
     tableData.push(values);
     setTableData([...tableData]);
   };
 
-  const handleSaveRowEdits: MaterialReactTableProps<Person>['onEditingRowSave'] =
+  const handleSaveRowEdits: MaterialReactTableProps<TableList>['onEditingRowSave'] =
     async ({ exitEditingMode, row, values }) => {
       if (!Object.keys(validationErrors).length) {
         tableData[row.index] = values;
@@ -58,7 +58,7 @@ const Example: FC = () => {
   };
 
   const handleDeleteRow = useCallback(
-    (row: MRT_Row<Person>) => {
+    (row: MRT_Row<TableList>) => {
       if (
         window.confirm(`Вы уверены, что хотите удалить ${row.getValue('firstName')}`)
       ) {
@@ -73,8 +73,8 @@ const Example: FC = () => {
 
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<Person>,
-    ): MRT_ColumnDef<Person>['muiTableBodyCellEditTextFieldProps'] => {
+      cell: MRT_Cell<TableList>,
+    ): MRT_ColumnDef<TableList>['muiTableBodyCellEditTextFieldProps'] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
@@ -104,7 +104,7 @@ const Example: FC = () => {
     [validationErrors],
   );
 
-  const columns = useMemo<MRT_ColumnDef<Person>[]>(
+  const columns = useMemo<MRT_ColumnDef<TableList>[]>(
     () => [
       {
         accessorKey: 'id',
@@ -206,9 +206,9 @@ const Example: FC = () => {
 
 //example of creating a mui dialog modal for creating new rows
 export const CreateNewAccountModal: FC<{
-  columns: MRT_ColumnDef<Person>[];
+  columns: MRT_ColumnDef<TableList>[];
   onClose: () => void;
-  onSubmit: (values: Person) => void;
+  onSubmit: (values: TableList) => void;
   open: boolean;
 }> = ({ open, columns, onClose, onSubmit }) => {
   const [values, setValues] = useState<any>(() =>
