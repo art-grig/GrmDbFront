@@ -10,11 +10,10 @@ function ColorSchemesExample() {
     <>
       <Navbar bg="dark" variant="dark">
         <Container>
-          <Navbar.Brand href="/">GRDMB</Navbar.Brand>
+          <Navbar.Brand href="/">GMR_DB</Navbar.Brand>
           <Nav className="me-left">
-            <Nav.Link href="/legalEntity">Юридическое лицо</Nav.Link>
-            <Nav.Link href="/person">Физическое лицо</Nav.Link>
-            <Nav.Link href="/table">Таблица</Nav.Link>
+            <Nav.Link href="/#/legalEntity">Юр. лица</Nav.Link>
+            <Nav.Link href="/#/person">Физ. лица</Nav.Link>
           </Nav>
         </Container>
       </Navbar>
