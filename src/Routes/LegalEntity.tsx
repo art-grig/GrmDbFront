@@ -118,6 +118,7 @@ const LegalEntityVmTable: FC = () => {
         accessorKey: 'id',
         header: 'Id',
         size: 20,
+        enableEditing: false,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
         }),
@@ -136,6 +137,7 @@ const LegalEntityVmTable: FC = () => {
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
+          type: 'number',
         }),
       },
      
@@ -228,22 +230,32 @@ export const CreateNewAccountModal: FC<{
               gap: '1.5rem',
             }}
           >
-            {columns.filter(c => c.accessorKey !== 'id').map((column) => (
-              <TextField
-                key={column.accessorKey}
-                label={column.header}
-                name={column.accessorKey}
+            <TextField
+                key={columns[1].accessorKey}
+                label={columns[1].header}
+                name={columns[1].accessorKey}
+                
                 onChange={(e) =>
                   setValues({ ...values, [e.target.name]: e.target.value })
                 }
               />
-            ))}
+              <TextField
+                key={columns[2].accessorKey}
+                label={columns[2].header}
+                name={columns[2].accessorKey}
+                type='number'
+                
+                onChange={(e) =>
+                  setValues({ ...values, [e.target.name]: e.target.value })
+                }
+              />
+           
           </Stack>
         </form>
       </DialogContent>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Отмена</Button>
-        <Button color="secondary" onClick={handleSubmit} variant="contained">
+        <Button color="success" onClick={handleSubmit} variant="contained">
         Добавить
         </Button>
       </DialogActions>

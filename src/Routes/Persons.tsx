@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { MRT_Localization_RU } from 'material-react-table/locales/ru';
 import MaterialReactTable, {
   MaterialReactTableProps,
@@ -21,33 +21,39 @@ import {
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 import { data, states } from '../Components/makeData';
+import { Client, PersonVm } from '../apiClients';
 
-export type Person = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  vote: number;
-  state:string;
-};
-
-const PersonsTable: FC = () => {
+const PersonVmTable: FC = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [tableData, setTableData] = useState<Person[]>(() => data);
+  const [tableData, setTableData] = useState<PersonVm[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
 
-  const handleCreateNewRow = (values: Person) => {
-    tableData.push(values);
-    setTableData([...tableData]);
+  const apiClient = new Client('http://localhost:5200');
+
+  useEffect(() => {
+    const fetchPersons = async () => {
+      const personsResp = await apiClient.personGET();
+      setTableData(personsResp.data ?? []);
+    };
+    fetchPersons();
+  }, []);
+
+  const handleCreateNewRow = async (model: PersonVm) => {
+    model.id = 0;
+    const createPersonResp = await apiClient.personPOST(model);
+    const newPerson = createPersonResp.data;
+    if (newPerson) {
+      setTableData([...[newPerson!].concat(tableData)]);
+    }
   };
 
-  const handleSaveRowEdits: MaterialReactTableProps<Person>['onEditingRowSave'] =
+  const handleSaveRowEdits: MaterialReactTableProps<PersonVm>['onEditingRowSave'] =
     async ({ exitEditingMode, row, values }) => {
       if (!Object.keys(validationErrors).length) {
         tableData[row.index] = values;
-        //send/receive api updates here, then refetch or update local table data for re-render
+        await apiClient.personPOST(tableData[row.index]);
         setTableData([...tableData]);
         exitEditingMode(); //required to exit editing mode and close modal
       }
@@ -57,24 +63,31 @@ const PersonsTable: FC = () => {
     setValidationErrors({});
   };
 
-  const handleDeleteRow = useCallback(
-    (row: MRT_Row<Person>) => {
+  const handleDeleteRow =  useCallback (
+    async (row: MRT_Row<PersonVm>) => {
       if (
-        window.confirm(`Вы уверены, что хотите удалить ${row.getValue('firstName')}`)
+        !window.confirm(`Вы уверены, что хотите удалить ${row.getValue('name')}`)
       ) {
         return;
       }
-      //send api delete request here, then refetch or update local table data for re-render
+      
+      try {
+      await apiClient.personDELETE(row.getValue('id'));
+
       tableData.splice(row.index, 1);
-      setTableData([...tableData]);
+      setTableData([...tableData]);        
+      }
+      catch(ex) {
+        alert("Произошла ошибка при обращении к серверу");
+      }
     },
     [tableData],
   );
 
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<Person>,
-    ): MRT_ColumnDef<Person>['muiTableBodyCellEditTextFieldProps'] => {
+      cell: MRT_Cell<PersonVm>,
+    ): MRT_ColumnDef<PersonVm>['muiTableBodyCellEditTextFieldProps'] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
@@ -104,11 +117,28 @@ const PersonsTable: FC = () => {
     [validationErrors],
   );
 
-  const columns = useMemo<MRT_ColumnDef<Person>[]>(
+  const columns = useMemo<MRT_ColumnDef<PersonVm>[]>(
     () => [
-      
       {
-        accessorKey: 'firstName',
+        accessorKey: 'id',
+        header: 'Id',
+        size: 20,
+        enableEditing: false,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
+      },
+      {
+        accessorKey: 'legalEntityId',
+        header: 'ID Физ. Лица',
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+          type:'number'
+        }),
+      },
+      {
+        accessorKey: 'name',
         header: 'Имя',
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
@@ -116,14 +146,22 @@ const PersonsTable: FC = () => {
         }),
       },
       {
-        accessorKey: 'lastName',
+        accessorKey: 'surname',
         header: 'Фамилия',
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
         }),
       },
-     
+      {
+        accessorKey: 'patronymic',
+        header: 'Отчество',
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
+      },
+                 
     ],
     [getCommonEditTextFieldProps],
   );
@@ -167,7 +205,7 @@ const PersonsTable: FC = () => {
             onClick={() => setCreateModalOpen(true)}
             variant="contained"
           >
-            Добавить Физическое Лицо 
+            Добавить
           </Button>
         )}
       />
@@ -183,9 +221,9 @@ const PersonsTable: FC = () => {
 
 //example of creating a mui dialog modal for creating new rows
 export const CreateNewAccountModal: FC<{
-  columns: MRT_ColumnDef<Person>[];
+  columns: MRT_ColumnDef<PersonVm>[];
   onClose: () => void;
-  onSubmit: (values: Person) => void;
+  onSubmit: (values: PersonVm) => void;
   open: boolean;
 }> = ({ open, columns, onClose, onSubmit }) => {
   const [values, setValues] = useState<any>(() =>
@@ -203,7 +241,7 @@ export const CreateNewAccountModal: FC<{
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign="center">Добавить Физическое Лицо</DialogTitle>
+      <DialogTitle textAlign="center">Добавление Физ. Лицо</DialogTitle>
       <DialogContent>
         <form onSubmit={(e) => e.preventDefault()}>
           <Stack
@@ -213,16 +251,39 @@ export const CreateNewAccountModal: FC<{
               gap: '1.5rem',
             }}
           >
-            {columns.map((column) => (
-              <TextField
-                key={column.accessorKey}
-                label={column.header}
-                name={column.accessorKey}
+            <TextField
+                key={columns[1].accessorKey}
+                label={columns[1].header}
+                name={columns[1].accessorKey}
+                onChange={(e) =>
+                  setValues({ ...values, [e.target.name]: e.target.value })
+                }
+                type='number'
+              />
+            <TextField
+                key={columns[2].accessorKey}
+                label={columns[2].header}
+                name={columns[2].accessorKey}
                 onChange={(e) =>
                   setValues({ ...values, [e.target.name]: e.target.value })
                 }
               />
-            ))}
+              <TextField
+                key={columns[3].accessorKey}
+                label={columns[3].header}
+                name={columns[3].accessorKey}
+                onChange={(e) =>
+                  setValues({ ...values, [e.target.name]: e.target.value })
+                }
+              />
+              <TextField
+                key={columns[4].accessorKey}
+                label={columns[4].header}
+                name={columns[4].accessorKey}
+                onChange={(e) =>
+                  setValues({ ...values, [e.target.name]: e.target.value })
+                }
+              />
           </Stack>
         </form>
       </DialogContent>
@@ -246,4 +307,4 @@ const validateEmail = (email: string) =>
     );
 const validateAge = (vote: number) => vote >= 18 && vote <= 50;
 
-export default PersonsTable;
+export default PersonVmTable;

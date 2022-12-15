@@ -5,7 +5,7 @@ import App from './App';
 import Table from './Routes/Table'
 import reportWebVitals from './reportWebVitals';
 import  NavbarMenu  from './Components/NavbarMenu';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, HashRouter } from "react-router-dom";
 import LegalEntity from './Routes/LegalEntity';
 import Person from './Routes/Persons';
 const root = ReactDOM.createRoot(
@@ -13,14 +13,14 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
+    <HashRouter>
         <NavbarMenu />
         <Routes>
           <Route path="/table" element={<Table/>}/>
           <Route path="/legalEntity" element={<LegalEntity/>} /> 
           <Route path="/person" element={<Person/>} /> 
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
   </React.StrictMode>
 );
 
