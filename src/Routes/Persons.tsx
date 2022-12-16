@@ -130,7 +130,7 @@ const PersonVmTable: FC = () => {
       },
       {
         accessorKey: 'legalEntityId',
-        header: 'ID Физ. Лица',
+        header: 'ID Юр. Лица',
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
