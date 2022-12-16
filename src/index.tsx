@@ -16,7 +16,7 @@ root.render(
     <HashRouter>
         <NavbarMenu />
         <Routes>
-          <Route path="/" element={(<h1> Добро пожаловать <h1/>)}/>
+          <Route path="/" element={(<h1 style={ { textAlign: 'center' } }> Добро пожаловать </h1>)}/>
           <Route path="/table" element={<Table/>}/>
           <Route path="/legalEntity" element={<LegalEntity/>} /> 
           <Route path="/person" element={<Person/>} /> 
