@@ -751,6 +751,7 @@ export class PersonVm implements IPersonVm {
     modifiedOn?: Date | undefined;
     legalEntityId?: number;
     legalEntity?: LegalEntityVm;
+    legalEntityName?: string | undefined;
 
     constructor(data?: IPersonVm) {
         if (data) {
@@ -771,6 +772,7 @@ export class PersonVm implements IPersonVm {
             this.modifiedOn = _data["modifiedOn"] ? new Date(_data["modifiedOn"].toString()) : <any>undefined;
             this.legalEntityId = _data["legalEntityId"];
             this.legalEntity = _data["legalEntity"] ? LegalEntityVm.fromJS(_data["legalEntity"]) : <any>undefined;
+            this.legalEntityName = _data["legalEntityName"];
         }
     }
 
@@ -791,6 +793,7 @@ export class PersonVm implements IPersonVm {
         data["modifiedOn"] = this.modifiedOn ? this.modifiedOn.toISOString() : <any>undefined;
         data["legalEntityId"] = this.legalEntityId;
         data["legalEntity"] = this.legalEntity ? this.legalEntity.toJSON() : <any>undefined;
+        data["legalEntityName"] = this.legalEntityName;
         return data;
     }
 }
@@ -804,6 +807,7 @@ export interface IPersonVm {
     modifiedOn?: Date | undefined;
     legalEntityId?: number;
     legalEntity?: LegalEntityVm;
+    legalEntityName?: string | undefined;
 }
 
 export class PersonVmIListResponseVm implements IPersonVmIListResponseVm {

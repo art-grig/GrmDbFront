@@ -1,11 +1,11 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { MRT_Localization_RU } from 'material-react-table/locales/ru';
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { MRT_Localization_RU } from "material-react-table/locales/ru";
 import MaterialReactTable, {
   MaterialReactTableProps,
   MRT_Cell,
   MRT_ColumnDef,
   MRT_Row,
-} from 'material-react-table';
+} from "material-react-table";
 import {
   Box,
   Button,
@@ -18,30 +18,37 @@ import {
   Stack,
   TextField,
   Tooltip,
-} from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
-import { data, states } from '../Components/makeData';
-import { Client, PersonVm } from '../apiClients';
+} from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
+import { data, states } from "../Components/makeData";
+import { Client, LegalEntityVm, PersonVm } from "../apiClients";
 
 const PersonVmTable: FC = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [tableData, setTableData] = useState<PersonVm[]>([]);
+  const [legalEntitiesMap, setLegalEntitiesMap] = useState<Map<string | undefined, LegalEntityVm>>(new Map());
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
 
-  const apiClient = new Client('http://localhost:5200');
+  const apiClient = new Client("http://localhost:5200");
+
+  function delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+  }
 
   useEffect(() => {
     const fetchPersons = async () => {
-      const personsResp = await apiClient.personGET();
-      setTableData(personsResp.data ?? []);
+      const apiResp = await Promise.all([apiClient.personGET(), apiClient.legalEntityGET()]);
+      setTableData(apiResp[0].data ?? []);
+      setLegalEntitiesMap(new Map<string | undefined, LegalEntityVm>((apiResp[1].data ?? []).map((vm): [string, LegalEntityVm] => [vm.name!, vm])));
     };
     fetchPersons();
   }, []);
 
   const handleCreateNewRow = async (model: PersonVm) => {
     model.id = 0;
+    model.legalEntityId = legalEntitiesMap.get(model.legalEntityName)?.id;
     const createPersonResp = await apiClient.personPOST(model);
     const newPerson = createPersonResp.data;
     if (newPerson) {
@@ -49,10 +56,11 @@ const PersonVmTable: FC = () => {
     }
   };
 
-  const handleSaveRowEdits: MaterialReactTableProps<PersonVm>['onEditingRowSave'] =
+  const handleSaveRowEdits: MaterialReactTableProps<PersonVm>["onEditingRowSave"] =
     async ({ exitEditingMode, row, values }) => {
       if (!Object.keys(validationErrors).length) {
         tableData[row.index] = values;
+        tableData[row.index].legalEntityId = legalEntitiesMap.get(tableData[row.index].legalEntityName)?.id;
         await apiClient.personPOST(tableData[row.index]);
         setTableData([...tableData]);
         exitEditingMode(); //required to exit editing mode and close modal
@@ -63,39 +71,40 @@ const PersonVmTable: FC = () => {
     setValidationErrors({});
   };
 
-  const handleDeleteRow =  useCallback (
+  const handleDeleteRow = useCallback(
     async (row: MRT_Row<PersonVm>) => {
       if (
-        !window.confirm(`Вы уверены, что хотите удалить ${row.getValue('name')}`)
+        !window.confirm(
+          `Вы уверены, что хотите удалить ${row.getValue("name")}`
+        )
       ) {
         return;
       }
-      
-      try {
-      await apiClient.personDELETE(row.getValue('id'));
 
-      tableData.splice(row.index, 1);
-      setTableData([...tableData]);        
-      }
-      catch(ex) {
+      try {
+        await apiClient.personDELETE(row.getValue("id"));
+
+        tableData.splice(row.index, 1);
+        setTableData([...tableData]);
+      } catch (ex) {
         alert("Произошла ошибка при обращении к серверу");
       }
     },
-    [tableData],
+    [tableData]
   );
 
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<PersonVm>,
-    ): MRT_ColumnDef<PersonVm>['muiTableBodyCellEditTextFieldProps'] => {
+      cell: MRT_Cell<PersonVm>
+    ): MRT_ColumnDef<PersonVm>["muiTableBodyCellEditTextFieldProps"] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
         onBlur: (event) => {
           const isValid =
-            cell.column.id === 'email'
+            cell.column.id === "email"
               ? validateEmail(event.target.value)
-              : cell.column.id === 'vote'
+              : cell.column.id === "vote"
               ? validateAge(+event.target.value)
               : validateRequired(event.target.value);
           if (!isValid) {
@@ -114,14 +123,14 @@ const PersonVmTable: FC = () => {
         },
       };
     },
-    [validationErrors],
+    [validationErrors]
   );
 
   const columns = useMemo<MRT_ColumnDef<PersonVm>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: 'Id',
+        accessorKey: "id",
+        header: "Id",
         size: 20,
         enableEditing: false,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
@@ -129,50 +138,54 @@ const PersonVmTable: FC = () => {
         }),
       },
       {
-        accessorKey: 'legalEntityId',
-        header: 'ID Юр. Лица',
-        size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type:'number'
-        }),
+        accessorKey: "legalEntityName",
+        header: "Компания",
+        muiTableBodyCellEditTextFieldProps: ({ row }) => { 
+          return {
+            children: Array.from(legalEntitiesMap.values()).map((le) => (
+              <MenuItem key={le.name} value={le.name}>
+                {le.name}
+              </MenuItem>
+            )),
+            select: true,
+          }
+        },
       },
       {
-        accessorKey: 'name',
-        header: 'Имя',
-        size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
-      },
-      {
-        accessorKey: 'surname',
-        header: 'Фамилия',
+        accessorKey: "name",
+        header: "Имя",
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
         }),
       },
       {
-        accessorKey: 'patronymic',
-        header: 'Отчество',
+        accessorKey: "surname",
+        header: "Фамилия",
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
         }),
       },
-                 
+      {
+        accessorKey: "patronymic",
+        header: "Отчество",
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
+      },
     ],
-    [getCommonEditTextFieldProps],
+    [getCommonEditTextFieldProps, legalEntitiesMap]
   );
 
   return (
     <>
       <MaterialReactTable
         displayColumnDefOptions={{
-          'mrt-row-actions': {
+          "mrt-row-actions": {
             muiTableHeadCellProps: {
-              align: 'center',
+              align: "center",
             },
             size: 120,
           },
@@ -186,7 +199,7 @@ const PersonVmTable: FC = () => {
         onEditingRowCancel={handleCancelRowEdits}
         localization={MRT_Localization_RU}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <Box sx={{ display: "flex", gap: "1rem" }}>
             <Tooltip arrow placement="left" title="Изменить">
               <IconButton onClick={() => table.setEditingRow(row)}>
                 <Edit />
@@ -228,9 +241,9 @@ export const CreateNewAccountModal: FC<{
 }> = ({ open, columns, onClose, onSubmit }) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
-      acc[column.accessorKey ?? ''] = '';
+      acc[column.accessorKey ?? ""] = "";
       return acc;
-    }, {} as any),
+    }, {} as any)
   );
 
   const handleSubmit = () => {
@@ -246,51 +259,51 @@ export const CreateNewAccountModal: FC<{
         <form onSubmit={(e) => e.preventDefault()}>
           <Stack
             sx={{
-              width: '100%',
-              minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem',
+              width: "100%",
+              minWidth: { xs: "300px", sm: "360px", md: "400px" },
+              gap: "1.5rem",
             }}
           >
             <TextField
-                key={columns[1].accessorKey}
-                label={columns[1].header}
-                name={columns[1].accessorKey}
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-                type='number'
-              />
+              key={columns[1].accessorKey}
+              label={columns[1].header}
+              name={columns[1].accessorKey}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+              type="number"
+            />
             <TextField
-                key={columns[2].accessorKey}
-                label={columns[2].header}
-                name={columns[2].accessorKey}
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
-              <TextField
-                key={columns[3].accessorKey}
-                label={columns[3].header}
-                name={columns[3].accessorKey}
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
-              <TextField
-                key={columns[4].accessorKey}
-                label={columns[4].header}
-                name={columns[4].accessorKey}
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
+              key={columns[2].accessorKey}
+              label={columns[2].header}
+              name={columns[2].accessorKey}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+            />
+            <TextField
+              key={columns[3].accessorKey}
+              label={columns[3].header}
+              name={columns[3].accessorKey}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+            />
+            <TextField
+              key={columns[4].accessorKey}
+              label={columns[4].header}
+              name={columns[4].accessorKey}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+            />
           </Stack>
         </form>
       </DialogContent>
-      <DialogActions sx={{ p: '1.25rem' }}>
+      <DialogActions sx={{ p: "1.25rem" }}>
         <Button onClick={onClose}>Отмена</Button>
         <Button color="secondary" onClick={handleSubmit} variant="contained">
-        Добавить
+          Добавить
         </Button>
       </DialogActions>
     </Dialog>
@@ -303,7 +316,7 @@ const validateEmail = (email: string) =>
   email
     .toLowerCase()
     .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
 const validateAge = (vote: number) => vote >= 18 && vote <= 50;
 
