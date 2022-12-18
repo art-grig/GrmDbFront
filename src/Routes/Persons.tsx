@@ -7,6 +7,7 @@ import MaterialReactTable, {
   MRT_Row,
 } from "material-react-table";
 import {
+  Autocomplete,
   Box,
   Button,
   Dialog,
@@ -15,6 +16,7 @@ import {
   DialogTitle,
   IconButton,
   MenuItem,
+  Select,
   Stack,
   TextField,
   Tooltip,
@@ -222,23 +224,25 @@ const PersonVmTable: FC = () => {
           </Button>
         )}
       />
-      <CreateNewAccountModal
+      <CreatePersonModal
         columns={columns}
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
+        legalEntitiesMap={legalEntitiesMap}
       />
     </>
   );
 };
 
 //example of creating a mui dialog modal for creating new rows
-export const CreateNewAccountModal: FC<{
+export const CreatePersonModal: FC<{
   columns: MRT_ColumnDef<PersonVm>[];
   onClose: () => void;
   onSubmit: (values: PersonVm) => void;
+  legalEntitiesMap: Map<string | undefined, LegalEntityVm>,
   open: boolean;
-}> = ({ open, columns, onClose, onSubmit }) => {
+}> = ({ legalEntitiesMap, open, columns, onClose, onSubmit }) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ""] = "";
@@ -254,7 +258,7 @@ export const CreateNewAccountModal: FC<{
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign="center">Добавление Физ. Лицо</DialogTitle>
+      <DialogTitle textAlign="center">Добавление Физ. Лица</DialogTitle>
       <DialogContent>
         <form onSubmit={(e) => e.preventDefault()}>
           <Stack
@@ -264,14 +268,19 @@ export const CreateNewAccountModal: FC<{
               gap: "1.5rem",
             }}
           >
+            <br/>
             <TextField
               key={columns[1].accessorKey}
               label={columns[1].header}
               name={columns[1].accessorKey}
+              select
+              children={Array.from(legalEntitiesMap.values()).map(le => 
+              (<MenuItem key={le.name} value={le.name}>
+                {le.name}
+              </MenuItem>))}
               onChange={(e) =>
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
-              type="number"
             />
             <TextField
               key={columns[2].accessorKey}
