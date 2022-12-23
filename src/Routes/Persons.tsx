@@ -41,29 +41,40 @@ const PersonVmTable: FC = () => {
 
   useEffect(() => {
     const fetchPersons = async () => {
-      const apiResp = await Promise.all([apiClient.personGET(), apiClient.legalEntityGET()]);
+      const apiResp = await Promise.all([apiClient.employeeGET(), apiClient.legalEntityGET()]);
       setTableData(apiResp[0].data ?? []);
       setLegalEntitiesMap(new Map<string | undefined, LegalEntityVm>((apiResp[1].data ?? []).map((vm): [string, LegalEntityVm] => [vm.name!, vm])));
     };
     fetchPersons();
   }, []);
 
+  useEffect(() => {
+    const timeout = 400;
+    setTimeout(() => {
+      const spin = document.querySelector('.spinLogo');
+      if (spin && spin.parentNode) {
+        spin.parentNode.removeChild(spin);
+      }
+    }, timeout);
+  }, []);
+
   const handleCreateNewRow = async (model: PersonVm) => {
     model.id = 0;
     model.legalEntityId = legalEntitiesMap.get(model.legalEntityName)?.id;
-    const createPersonResp = await apiClient.personPOST(model);
+    const createPersonResp = await apiClient.employeePOST(model);
     const newPerson = createPersonResp.data;
     if (newPerson) {
       setTableData([...[newPerson!].concat(tableData)]);
     }
   };
 
+  console.log(LegalEntityVm);
   const handleSaveRowEdits: MaterialReactTableProps<PersonVm>["onEditingRowSave"] =
     async ({ exitEditingMode, row, values }) => {
       if (!Object.keys(validationErrors).length) {
         tableData[row.index] = values;
         tableData[row.index].legalEntityId = legalEntitiesMap.get(tableData[row.index].legalEntityName)?.id;
-        await apiClient.personPOST(tableData[row.index]);
+        await apiClient.employeePOST(tableData[row.index]);
         setTableData([...tableData]);
         exitEditingMode(); //required to exit editing mode and close modal
       }
@@ -84,7 +95,7 @@ const PersonVmTable: FC = () => {
       }
 
       try {
-        await apiClient.personDELETE(row.getValue("id"));
+        await apiClient.employeeDELETE(row.getValue("id"));
 
         tableData.splice(row.index, 1);
         setTableData([...tableData]);
@@ -127,7 +138,7 @@ const PersonVmTable: FC = () => {
     },
     [validationErrors]
   );
-
+  
   const columns = useMemo<MRT_ColumnDef<PersonVm>[]>(
     () => [
       {
@@ -172,6 +183,47 @@ const PersonVmTable: FC = () => {
       {
         accessorKey: "patronymic",
         header: "Отчество",
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
+      },
+      {
+        id: 'createdOn',
+        accessorFn: (r) => r.createdOn?.toLocaleDateString(),
+        header: "Дата создания",
+        size: 140,
+        enableEditing: false,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
+        Header: <i style={{ color: '#005d62' }}>Дата создания</i>,
+      },
+      {
+        accessorKey: "attStartDate",
+        header: "Начало Атестации",
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+          type: 'date',
+        }),   
+        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        Header: <i style={{ color: '#00a48a' }}>Начало Атестации</i>,
+      },
+      {
+        accessorKey: "attEndDate",
+        header: "Конец Атестации",
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+          type: 'date',
+        }),
+        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        Header: <i style={{ color: '#6a0e17' }}>Конец Атестации</i>,
+      },
+      {
+        accessorKey: "inn",
+        header: "ИНН",
         size: 140,
         muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
           ...getCommonEditTextFieldProps(cell),
@@ -254,10 +306,11 @@ export const CreatePersonModal: FC<{
     //put your validation logic here
     onSubmit(values);
     onClose();
+
   };
 
   return (
-    <Dialog open={open}>
+      <Dialog  open={open}>
       <DialogTitle textAlign="center">Добавление Физ. Лица</DialogTitle>
       <DialogContent>
         <form onSubmit={(e) => e.preventDefault()}>
@@ -306,16 +359,43 @@ export const CreatePersonModal: FC<{
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
             />
+            <> <p className="startAtt"> Начало Атестации </p> </>
+            <TextField
+              key={columns[6].accessorKey}   
+              name={columns[6].accessorKey}
+              type='date'
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+            />
+            <> <p className="endAtt">Конец Атестации </p></>
+            <TextField
+              key={columns[7].accessorKey}
+              name={columns[7].accessorKey}
+              type='date'
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+            />
+              <TextField
+              key={columns[8].accessorKey}
+              label={columns[8].header}
+              name={columns[8].accessorKey}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+            />
           </Stack>
         </form>
       </DialogContent>
       <DialogActions sx={{ p: "1.25rem" }}>
         <Button onClick={onClose}>Отмена</Button>
-        <Button color="secondary" onClick={handleSubmit} variant="contained">
+        <Button color="success" onClick={handleSubmit} variant="contained">
           Добавить
         </Button>
       </DialogActions>
     </Dialog>
+   
   );
 };
 

@@ -112,6 +112,8 @@ const LegalEntityVmTable: FC = () => {
     [validationErrors],
   );
 
+    console.log(tableData);
+    
   const columns = useMemo<MRT_ColumnDef<LegalEntityVm>[]>(
     () => [
       {
@@ -140,7 +142,58 @@ const LegalEntityVmTable: FC = () => {
           type: 'number',
         }),
       },
-     
+      {
+        accessorKey: 'certStartDate',
+        header: 'Начало Сертефикации',
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+          type: 'date',
+        }),
+        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        Header: <i style={{ color: '#00a48a' }}>Начало Сертефикации</i>,
+      },
+      {
+        accessorKey: 'certEndDate',
+        header: 'Конец Сертефикации',
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+          type: 'date',
+        }),
+        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        Header: <i style={{ color: '#6a0e17' }}>Конец Сертефикации</i>,
+      },
+      {
+        accessorKey: 'insStartDate',
+        header: 'Начало Страховки',
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+          type: 'date',
+        }),
+        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        Header: <i style={{ color: '#00a48a' }}>Начало Страховки</i>,
+      },
+      {
+        accessorKey: 'insEndDate',
+        header: 'Конец Страховки',
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+          type: 'date',
+        }),
+        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        Header: <i style={{ color: '#6a0e17' }}>Конец Страховки</i>,
+      },
+      {
+        accessorKey: 'inn',
+        header: 'ИНН',
+        size: 140,
+        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+          ...getCommonEditTextFieldProps(cell),
+        }),
+      },
     ],
     [getCommonEditTextFieldProps],
   );
@@ -230,6 +283,7 @@ export const CreateNewAccountModal: FC<{
               gap: '1.5rem',
             }}
           >
+            <><br /></>
             <TextField
                 key={columns[1].accessorKey}
                 label={columns[1].header}
@@ -249,7 +303,50 @@ export const CreateNewAccountModal: FC<{
                   setValues({ ...values, [e.target.name]: e.target.value })
                 }
               />
-           
+              <><p className='certStart'>Начало Сертефикации</p></>
+              <TextField
+                key={columns[3].accessorKey}
+                name={columns[3].accessorKey}
+                type='date'
+                onChange={(e) =>
+                  setValues({ ...values, [e.target.name]: e.target.value })
+                }
+              />
+              <><p className='certEnd'>Конец Сертефикации</p></>
+              <TextField
+                key={columns[4].accessorKey}
+                name={columns[4].accessorKey}
+                type='date'        
+                onChange={(e) =>
+                  setValues({ ...values, [e.target.name]: e.target.value })
+                }
+              />
+              <><p className='certStart'>Начало Страховки</p></>
+               <TextField
+                key={columns[5].accessorKey}
+                name={columns[5].accessorKey}
+                type='date'        
+                onChange={(e) =>
+                  setValues({ ...values, [e.target.name]: e.target.value })
+                }
+              />
+               <><p className='certEnd'>Конец Страховки</p></>
+               <TextField
+                key={columns[6].accessorKey}
+                name={columns[6].accessorKey}
+                type='date'        
+                onChange={(e) =>
+                  setValues({ ...values, [e.target.name]: e.target.value })
+                }
+              />
+            <TextField
+                key={columns[7].accessorKey}
+                name={columns[7].accessorKey}    
+                label={columns[7].header}
+                onChange={(e) =>
+                  setValues({ ...values, [e.target.name]: e.target.value })
+                }
+              />
           </Stack>
         </form>
       </DialogContent>
