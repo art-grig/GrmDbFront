@@ -27,7 +27,222 @@ export class Client {
      * @param body (optional) 
      * @return Success
      */
-    legalEntityPOST(body: LegalEntityVm | undefined , cancelToken?: CancelToken | undefined): Promise<LegalEntityVmResponseVm> {
+    employeePOST(body: PersonBaseVm | undefined , cancelToken?: CancelToken | undefined): Promise<PersonVmResponseVm> {
+        let url_ = this.baseUrl + "/api/Employee";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "POST",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processEmployeePOST(_response);
+        });
+    }
+
+    protected processEmployeePOST(response: AxiosResponse): Promise<PersonVmResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = PersonVmResponseVm.fromJS(resultData200);
+            return Promise.resolve<PersonVmResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<PersonVmResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    employeeGET(  cancelToken?: CancelToken | undefined): Promise<PersonVmIListResponseVm> {
+        let url_ = this.baseUrl + "/api/Employee";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processEmployeeGET(_response);
+        });
+    }
+
+    protected processEmployeeGET(response: AxiosResponse): Promise<PersonVmIListResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = PersonVmIListResponseVm.fromJS(resultData200);
+            return Promise.resolve<PersonVmIListResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<PersonVmIListResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    employeeDELETE(id: number , cancelToken?: CancelToken | undefined): Promise<BaseResponseVm> {
+        let url_ = this.baseUrl + "/api/Employee/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "DELETE",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processEmployeeDELETE(_response);
+        });
+    }
+
+    protected processEmployeeDELETE(response: AxiosResponse): Promise<BaseResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = BaseResponseVm.fromJS(resultData200);
+            return Promise.resolve<BaseResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<BaseResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    employeeGET2(id: number , cancelToken?: CancelToken | undefined): Promise<PersonVmResponseVm> {
+        let url_ = this.baseUrl + "/api/Employee/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processEmployeeGET2(_response);
+        });
+    }
+
+    protected processEmployeeGET2(response: AxiosResponse): Promise<PersonVmResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = PersonVmResponseVm.fromJS(resultData200);
+            return Promise.resolve<PersonVmResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<PersonVmResponseVm>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    legalEntityPOST(body: LegalEntityBaseVm | undefined , cancelToken?: CancelToken | undefined): Promise<LegalEntityVmResponseVm> {
         let url_ = this.baseUrl + "/api/LegalEntity";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -239,221 +454,6 @@ export class Client {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
-     */
-    personPOST(body: PersonVm | undefined , cancelToken?: CancelToken | undefined): Promise<PersonVmResponseVm> {
-        let url_ = this.baseUrl + "/api/Person";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "POST",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processPersonPOST(_response);
-        });
-    }
-
-    protected processPersonPOST(response: AxiosResponse): Promise<PersonVmResponseVm> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = PersonVmResponseVm.fromJS(resultData200);
-            return Promise.resolve<PersonVmResponseVm>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<PersonVmResponseVm>(null as any);
-    }
-
-    /**
-     * @return Success
-     */
-    personGET(  cancelToken?: CancelToken | undefined): Promise<PersonVmIListResponseVm> {
-        let url_ = this.baseUrl + "/api/Person";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "text/plain"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processPersonGET(_response);
-        });
-    }
-
-    protected processPersonGET(response: AxiosResponse): Promise<PersonVmIListResponseVm> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = PersonVmIListResponseVm.fromJS(resultData200);
-            return Promise.resolve<PersonVmIListResponseVm>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<PersonVmIListResponseVm>(null as any);
-    }
-
-    /**
-     * @return Success
-     */
-    personDELETE(id: number , cancelToken?: CancelToken | undefined): Promise<BaseResponseVm> {
-        let url_ = this.baseUrl + "/api/Person/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "DELETE",
-            url: url_,
-            headers: {
-                "Accept": "text/plain"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processPersonDELETE(_response);
-        });
-    }
-
-    protected processPersonDELETE(response: AxiosResponse): Promise<BaseResponseVm> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = BaseResponseVm.fromJS(resultData200);
-            return Promise.resolve<BaseResponseVm>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<BaseResponseVm>(null as any);
-    }
-
-    /**
-     * @return Success
-     */
-    personGET2(id: number , cancelToken?: CancelToken | undefined): Promise<PersonVmResponseVm> {
-        let url_ = this.baseUrl + "/api/Person/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "text/plain"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processPersonGET2(_response);
-        });
-    }
-
-    protected processPersonGET2(response: AxiosResponse): Promise<PersonVmResponseVm> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (let k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = PersonVmResponseVm.fromJS(resultData200);
-            return Promise.resolve<PersonVmResponseVm>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<PersonVmResponseVm>(null as any);
-    }
-
-    /**
      * @return Success
      */
     getWeatherForecast(  cancelToken?: CancelToken | undefined): Promise<WeatherForecast[]> {
@@ -560,6 +560,78 @@ export interface IBaseResponseVm {
     systemMessage?: string | undefined;
 }
 
+export class LegalEntityBaseVm implements ILegalEntityBaseVm {
+    id?: number;
+    name?: string | undefined;
+    membershipType?: MembershipType;
+    legalEntityType?: LegalEntityType;
+    votes?: number;
+    inn?: string | undefined;
+    certStartDate?: Date | undefined;
+    certEndDate?: Date | undefined;
+    insStartDate?: Date | undefined;
+    insEndDate?: Date | undefined;
+
+    constructor(data?: ILegalEntityBaseVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.membershipType = _data["membershipType"];
+            this.legalEntityType = _data["legalEntityType"];
+            this.votes = _data["votes"];
+            this.inn = _data["inn"];
+            this.certStartDate = _data["certStartDate"] ? new Date(_data["certStartDate"].toString()) : <any>undefined;
+            this.certEndDate = _data["certEndDate"] ? new Date(_data["certEndDate"].toString()) : <any>undefined;
+            this.insStartDate = _data["insStartDate"] ? new Date(_data["insStartDate"].toString()) : <any>undefined;
+            this.insEndDate = _data["insEndDate"] ? new Date(_data["insEndDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): LegalEntityBaseVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new LegalEntityBaseVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["membershipType"] = this.membershipType;
+        data["legalEntityType"] = this.legalEntityType;
+        data["votes"] = this.votes;
+        data["inn"] = this.inn;
+        data["certStartDate"] = this.certStartDate ? this.certStartDate.toISOString() : <any>undefined;
+        data["certEndDate"] = this.certEndDate ? this.certEndDate.toISOString() : <any>undefined;
+        data["insStartDate"] = this.insStartDate ? this.insStartDate.toISOString() : <any>undefined;
+        data["insEndDate"] = this.insEndDate ? this.insEndDate.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ILegalEntityBaseVm {
+    id?: number;
+    name?: string | undefined;
+    membershipType?: MembershipType;
+    legalEntityType?: LegalEntityType;
+    votes?: number;
+    inn?: string | undefined;
+    certStartDate?: Date | undefined;
+    certEndDate?: Date | undefined;
+    insStartDate?: Date | undefined;
+    insEndDate?: Date | undefined;
+}
+
 export enum LegalEntityType {
     _0 = 0,
     _1 = 1,
@@ -571,6 +643,11 @@ export class LegalEntityVm implements ILegalEntityVm {
     membershipType?: MembershipType;
     legalEntityType?: LegalEntityType;
     votes?: number;
+    inn?: string | undefined;
+    certStartDate?: Date | undefined;
+    certEndDate?: Date | undefined;
+    insStartDate?: Date | undefined;
+    insEndDate?: Date | undefined;
     createdOn?: Date | undefined;
     modifiedOn?: Date | undefined;
 
@@ -590,6 +667,11 @@ export class LegalEntityVm implements ILegalEntityVm {
             this.membershipType = _data["membershipType"];
             this.legalEntityType = _data["legalEntityType"];
             this.votes = _data["votes"];
+            this.inn = _data["inn"];
+            this.certStartDate = _data["certStartDate"] ? new Date(_data["certStartDate"].toString()) : <any>undefined;
+            this.certEndDate = _data["certEndDate"] ? new Date(_data["certEndDate"].toString()) : <any>undefined;
+            this.insStartDate = _data["insStartDate"] ? new Date(_data["insStartDate"].toString()) : <any>undefined;
+            this.insEndDate = _data["insEndDate"] ? new Date(_data["insEndDate"].toString()) : <any>undefined;
             this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
             this.modifiedOn = _data["modifiedOn"] ? new Date(_data["modifiedOn"].toString()) : <any>undefined;
         }
@@ -609,6 +691,11 @@ export class LegalEntityVm implements ILegalEntityVm {
         data["membershipType"] = this.membershipType;
         data["legalEntityType"] = this.legalEntityType;
         data["votes"] = this.votes;
+        data["inn"] = this.inn;
+        data["certStartDate"] = this.certStartDate ? this.certStartDate.toISOString() : <any>undefined;
+        data["certEndDate"] = this.certEndDate ? this.certEndDate.toISOString() : <any>undefined;
+        data["insStartDate"] = this.insStartDate ? this.insStartDate.toISOString() : <any>undefined;
+        data["insEndDate"] = this.insEndDate ? this.insEndDate.toISOString() : <any>undefined;
         data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
         data["modifiedOn"] = this.modifiedOn ? this.modifiedOn.toISOString() : <any>undefined;
         return data;
@@ -621,6 +708,11 @@ export interface ILegalEntityVm {
     membershipType?: MembershipType;
     legalEntityType?: LegalEntityType;
     votes?: number;
+    inn?: string | undefined;
+    certStartDate?: Date | undefined;
+    certEndDate?: Date | undefined;
+    insStartDate?: Date | undefined;
+    insEndDate?: Date | undefined;
     createdOn?: Date | undefined;
     modifiedOn?: Date | undefined;
 }
@@ -742,15 +834,86 @@ export enum MembershipType {
     _1 = 1,
 }
 
-export class PersonVm implements IPersonVm {
-    id?: number;
+export class PersonBaseVm implements IPersonBaseVm {
+    id?: number | undefined;
     name?: string | undefined;
     surname?: string | undefined;
     patronymic?: string | undefined;
+    legalEntityId?: number;
+    attNumber?: string | undefined;
+    attStartDate?: Date | undefined;
+    attEndDate?: Date | undefined;
+    inn?: string | undefined;
+
+    constructor(data?: IPersonBaseVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.surname = _data["surname"];
+            this.patronymic = _data["patronymic"];
+            this.legalEntityId = _data["legalEntityId"];
+            this.attNumber = _data["attNumber"];
+            this.attStartDate = _data["attStartDate"] ? new Date(_data["attStartDate"].toString()) : <any>undefined;
+            this.attEndDate = _data["attEndDate"] ? new Date(_data["attEndDate"].toString()) : <any>undefined;
+            this.inn = _data["inn"];
+        }
+    }
+
+    static fromJS(data: any): PersonBaseVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new PersonBaseVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["surname"] = this.surname;
+        data["patronymic"] = this.patronymic;
+        data["legalEntityId"] = this.legalEntityId;
+        data["attNumber"] = this.attNumber;
+        data["attStartDate"] = this.attStartDate ? this.attStartDate.toISOString() : <any>undefined;
+        data["attEndDate"] = this.attEndDate ? this.attEndDate.toISOString() : <any>undefined;
+        data["inn"] = this.inn;
+        return data;
+    }
+}
+
+export interface IPersonBaseVm {
+    id?: number | undefined;
+    name?: string | undefined;
+    surname?: string | undefined;
+    patronymic?: string | undefined;
+    legalEntityId?: number;
+    attNumber?: string | undefined;
+    attStartDate?: Date | undefined;
+    attEndDate?: Date | undefined;
+    inn?: string | undefined;
+}
+
+export class PersonVm implements IPersonVm {
+    id?: number | undefined;
+    name?: string | undefined;
+    surname?: string | undefined;
+    patronymic?: string | undefined;
+    legalEntityId?: number;
+    attNumber?: string | undefined;
+    attStartDate?: Date | undefined;
+    attEndDate?: Date | undefined;
+    inn?: string | undefined;
     createdOn?: Date | undefined;
     modifiedOn?: Date | undefined;
-    legalEntityId?: number;
-    legalEntity?: LegalEntityVm;
     legalEntityName?: string | undefined;
 
     constructor(data?: IPersonVm) {
@@ -768,10 +931,13 @@ export class PersonVm implements IPersonVm {
             this.name = _data["name"];
             this.surname = _data["surname"];
             this.patronymic = _data["patronymic"];
+            this.legalEntityId = _data["legalEntityId"];
+            this.attNumber = _data["attNumber"];
+            this.attStartDate = _data["attStartDate"] ? new Date(_data["attStartDate"].toString()) : <any>undefined;
+            this.attEndDate = _data["attEndDate"] ? new Date(_data["attEndDate"].toString()) : <any>undefined;
+            this.inn = _data["inn"];
             this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
             this.modifiedOn = _data["modifiedOn"] ? new Date(_data["modifiedOn"].toString()) : <any>undefined;
-            this.legalEntityId = _data["legalEntityId"];
-            this.legalEntity = _data["legalEntity"] ? LegalEntityVm.fromJS(_data["legalEntity"]) : <any>undefined;
             this.legalEntityName = _data["legalEntityName"];
         }
     }
@@ -789,24 +955,30 @@ export class PersonVm implements IPersonVm {
         data["name"] = this.name;
         data["surname"] = this.surname;
         data["patronymic"] = this.patronymic;
+        data["legalEntityId"] = this.legalEntityId;
+        data["attNumber"] = this.attNumber;
+        data["attStartDate"] = this.attStartDate ? this.attStartDate.toISOString() : <any>undefined;
+        data["attEndDate"] = this.attEndDate ? this.attEndDate.toISOString() : <any>undefined;
+        data["inn"] = this.inn;
         data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
         data["modifiedOn"] = this.modifiedOn ? this.modifiedOn.toISOString() : <any>undefined;
-        data["legalEntityId"] = this.legalEntityId;
-        data["legalEntity"] = this.legalEntity ? this.legalEntity.toJSON() : <any>undefined;
         data["legalEntityName"] = this.legalEntityName;
         return data;
     }
 }
 
 export interface IPersonVm {
-    id?: number;
+    id?: number | undefined;
     name?: string | undefined;
     surname?: string | undefined;
     patronymic?: string | undefined;
+    legalEntityId?: number;
+    attNumber?: string | undefined;
+    attStartDate?: Date | undefined;
+    attEndDate?: Date | undefined;
+    inn?: string | undefined;
     createdOn?: Date | undefined;
     modifiedOn?: Date | undefined;
-    legalEntityId?: number;
-    legalEntity?: LegalEntityVm;
     legalEntityName?: string | undefined;
 }
 

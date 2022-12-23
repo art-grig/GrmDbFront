@@ -50,4 +50,5 @@ const data: YourDataType[] = [
 ];
 
 export default function App() {
+  
 }

@@ -1,0 +1,204 @@
+
+
+.legalEntity{
+    display: flex;
+    justify-content: center;
+}
+.persons{
+    display: flex;
+    justify-content: center;
+    color: rgb(13, 77, 13);
+}
+
+.logo {
+    width: 21.875rem;
+}
+
+.leNav{
+    color: #b0dfd7;
+    font-size: 18px;
+    font-family: sans-serif;
+}
+.leNav:hover{
+    color: #00a48a;
+}
+.nav-link:active{
+    color: #b0dfd76c;
+    font-size: 18px;
+    font-family: sans-serif;
+}
+
+.persNav{
+    color: #b0dfd7;
+    font-size: 18px;
+    font-family: sans-serif;
+}
+.persNav:hover{
+    color: #00a48a;
+}
+.login{
+    color: #b0dfd7;
+    font-size: 18px;
+    font-family: sans-serif;
+}
+.login:hover{
+    color: #00a48a;
+}
+
+/* Menu start */ 
+.startmenu {
+    display: flex;
+    margin-top: 5%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+        a{
+            color: #223334;
+        }
+        a:hover{
+            color:#00a48a;
+        }
+        h1{
+        color: #223334;
+        }
+        h2{
+        color:#005d62;
+        }
+
+.spin{
+    margin-top: 25px;
+    width: 171px;
+    height: 171px;
+    background-image: url('../images/Cube-1.8s-171px.svg') ;
+}
+
+.footer{
+  background-color: #212529;
+  color: #00a48a;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 10px;
+}
+.footer p{
+  font-family: Haettenschweiler, 'Arial Narrow', sans-serif;
+  font-size: 16px;
+}
+
+
+
+
+/* Cool infinite background scrolling animation.
+ * Twitter: @kootoopas
+ */
+/* Exo thin font from Google. */
+@import url(https://fonts.googleapis.com/css?family=Exo:100);
+/* Background data (Original source: https://subtlepatterns.com/grid-me/) */
+/* Animations */
+@-webkit-keyframes bg-scrolling-reverse {
+  100% {
+    background-position: 50px 50px;
+  }
+}
+@-moz-keyframes bg-scrolling-reverse {
+  100% {
+    background-position: 50px 50px;
+  }
+}
+@-o-keyframes bg-scrolling-reverse {
+  100% {
+    background-position: 50px 50px;
+  }
+}
+@keyframes bg-scrolling-reverse {
+  100% {
+    background-position: 50px 50px;
+  }
+}
+@-webkit-keyframes bg-scrolling {
+  0% {
+    background-position: 50px 50px;
+  }
+}
+@-moz-keyframes bg-scrolling {
+  0% {
+    background-position: 50px 50px;
+  }
+}
+@-o-keyframes bg-scrolling {
+  0% {
+    background-position: 50px 50px;
+  }
+}
+@keyframes bg-scrolling {
+  0% {
+    background-position: 50px 50px;
+  }
+}
+/* Main styles */
+body {
+  color: #2d2234;
+  font: 400 16px/1.5 exo, ubuntu, "segoe ui", helvetica, arial, sans-serif;
+  text-align: center;
+  /* img size is 50x50 */
+  background: url("../images/blue-snow.png") repeat 0 0;
+  -webkit-animation: bg-scrolling-reverse 1s infinite;
+  /* Safari 4+ */
+  -moz-animation: bg-scrolling-reverse 1s infinite;
+  /* Fx 5+ */
+  -o-animation: bg-scrolling-reverse 1s infinite;
+  /* Opera 12+ */
+  animation: bg-scrolling-reverse 1s infinite;
+  /* IE 10+ */
+  -webkit-animation-timing-function: linear;
+  -moz-animation-timing-function: linear;
+  -o-animation-timing-function: linear;
+  animation-timing-function: linear;
+}
+body::before {
+  font-size: 8rem;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.certStart{
+  margin: 0;
+  margin-bottom: -23px;
+  color: #212529a4;
+}
+.certEnd{
+  margin: 0;
+  margin-top: -5px;
+  margin-bottom: -23px;
+  color: #212529a4;
+}
+
+.startAtt{
+  margin: 0;
+  margin-bottom: -23px;
+  color: #212529a4;
+}
+.endAtt{
+  margin: 0;
+  margin-top: -5px;
+  margin-bottom: -23px;
+  color: #212529a4;
+}
+
+@media screen and (max-width: 490px) {
+  .logo {
+    width: 150px;
+}
+.leNav{
+  font-size: 15px;
+}
+.persNav{
+  font-size: 15px;
+}
+html {
+  width: 100%;
+}
+}

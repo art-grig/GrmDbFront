@@ -1,0 +1,80 @@
+body{
+    display: flex;
+    flex-direction: column;
+    }
+.spinLogo{
+    position: relative;
+    background: url('../images/Spinner-1s-204px.svg') no-repeat;
+    width: 204px;
+    height: 204px;
+    animation: spin 1 0.4s;
+    z-index: 1;
+}
+@keyframes spin {
+    0%{
+        opacity: 100%;
+    }
+    50%{
+        opacity: 50%;
+    }
+    100%{
+        opacity: 0%;
+    }
+}
+
+.loginForm{
+    position: relative;
+    margin-top: 10%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(255, 255, 255, 0);
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    border: 5px;
+}
+.loginForm h1{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    color: #212529;
+}
+.loginForm2{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    background-color: rgba(255, 255, 255, 0);
+    animation: showForm 1 0.8s;
+    text-align: center;
+    
+}
+.loginForm2 input{
+   text-align: center;
+}
+.loginForm2 label{
+    font-size: 16px;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow', sans-serif;
+    color: #213030;
+}
+
+.btn{
+    background-color: #005d62;
+    color: white;
+    padding: 1px;
+}
+.btn:hover{
+    background-color: #005d6256;
+    color: #005d62;
+    padding: 1px;
+}
+
+@keyframes showForm {
+    0%{
+        opacity: 0%;
+    }
+    50%{
+        opacity:  0%;
+    }
+    100%{
+        opacity: 100%;
+    }
+}

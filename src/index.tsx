@@ -8,6 +8,9 @@ import  NavbarMenu  from './Components/NavbarMenu';
 import { BrowserRouter, Routes, Route, HashRouter } from "react-router-dom";
 import LegalEntity from './Routes/LegalEntity';
 import Person from './Routes/Persons';
+import LoginPage from './Routes/LoginPage';
+import StartMenu from './Routes/StartMenu';
+import Footer from './Components/Footer';
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
@@ -16,12 +19,14 @@ root.render(
     <HashRouter>
         <NavbarMenu />
         <Routes>
-          <Route path="/" element={(<h1 style={ { textAlign: 'center' } }> Добро пожаловать </h1>)}/>
+          <Route path="/" element={<StartMenu/>}/>
+          <Route path="/login" element={<LoginPage/>}/>
           <Route path="/table" element={<Table/>}/>
           <Route path="/legalEntity" element={<LegalEntity/>} /> 
           <Route path="/person" element={<Person/>} /> 
         </Routes>
       </HashRouter>
+      <Footer />
   </React.StrictMode>
 );
 
