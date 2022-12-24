@@ -79,13 +79,26 @@ const LegalEntityVmTable: FC = () => {
     [tableData],
   );
 
+  const disableEditing = (row: MRT_Row<LegalEntityVm>, cell: MRT_Cell<LegalEntityVm>) => {
+    const disableFieldsList = ['certStartDate', 'certEndDate', 'insStartDate', 'insEndDate'];
+    console.log(cell.column.id);
+    if (disableFieldsList.includes(cell.column.id) && cell.getValue<Date | undefined>()) {
+      return true;
+    }
+
+
+    return false;
+  }
+
   const getCommonEditTextFieldProps = useCallback(
     (
       cell: MRT_Cell<LegalEntityVm>,
+      row: MRT_Row<LegalEntityVm>,
     ): MRT_ColumnDef<LegalEntityVm>['muiTableBodyCellEditTextFieldProps'] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
+        disabled: disableEditing(row, cell),
         onBlur: (event) => {
           const isValid =
             cell.column.id === 'email'
@@ -121,24 +134,24 @@ const LegalEntityVmTable: FC = () => {
         header: 'Id',
         size: 20,
         enableEditing: false,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
         }),
       },
       {
         accessorKey: 'name',
         header: 'Название',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
         }),
       },
       {
         accessorKey: 'votes',
         header: 'Голоса',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
           type: 'number',
         }),
       },
@@ -146,8 +159,8 @@ const LegalEntityVmTable: FC = () => {
         accessorKey: 'certStartDate',
         header: 'Начало Сертефикации',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
           type: 'date',
         }),
         Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
@@ -157,8 +170,8 @@ const LegalEntityVmTable: FC = () => {
         accessorKey: 'certEndDate',
         header: 'Конец Сертефикации',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
           type: 'date',
         }),
         Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
@@ -168,8 +181,8 @@ const LegalEntityVmTable: FC = () => {
         accessorKey: 'insStartDate',
         header: 'Начало Страховки',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
           type: 'date',
         }),
         Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
@@ -179,8 +192,8 @@ const LegalEntityVmTable: FC = () => {
         accessorKey: 'insEndDate',
         header: 'Конец Страховки',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
           type: 'date',
         }),
         Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
@@ -190,8 +203,8 @@ const LegalEntityVmTable: FC = () => {
         accessorKey: 'inn',
         header: 'ИНН',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
         }),
       },
     ],

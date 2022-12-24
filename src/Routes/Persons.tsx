@@ -106,9 +106,21 @@ const PersonVmTable: FC = () => {
     [tableData]
   );
 
+  const disableEditing = (row: MRT_Row<PersonVm>, cell: MRT_Cell<PersonVm>) => {
+    const disableFieldsList = ['attStartDate', 'attEndDate'];
+    console.log(cell.getValue());
+    if (disableFieldsList.includes(cell.column.id) && cell.getValue<Date | undefined>()) {
+      return true;
+    }
+
+    return false;
+  }
+
+
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<PersonVm>
+      cell: MRT_Cell<PersonVm>,
+       row: MRT_Row<PersonVm>,
     ): MRT_ColumnDef<PersonVm>["muiTableBodyCellEditTextFieldProps"] => {
       return {
         error: !!validationErrors[cell.id],
@@ -146,8 +158,8 @@ const PersonVmTable: FC = () => {
         header: "Id",
         size: 20,
         enableEditing: false,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
         }),
       },
       {
@@ -168,24 +180,24 @@ const PersonVmTable: FC = () => {
         accessorKey: "name",
         header: "Имя",
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
         }),
       },
       {
         accessorKey: "surname",
         header: "Фамилия",
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
         }),
       },
       {
         accessorKey: "patronymic",
         header: "Отчество",
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
         }),
       },
       {
@@ -194,39 +206,39 @@ const PersonVmTable: FC = () => {
         header: "Дата создания",
         size: 140,
         enableEditing: false,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
         }),
         Header: <i style={{ color: '#005d62' }}>Дата создания</i>,
       },
       {
-        accessorKey: "attStartDate",
+        id: 'attStartDate',
+        accessorFn: (r) => r.attStartDate?.toLocaleDateString(),
         header: "Начало Атестации",
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'date',
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
         }),   
-        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
         Header: <i style={{ color: '#00a48a' }}>Начало Атестации</i>,
       },
       {
-        accessorKey: "attEndDate",
+        id: 'attEndDate',
+        accessorFn: (r) => r.attEndDate?.toLocaleDateString(),
         header: "Конец Атестации",
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'date',
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
+        
         }),
-        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        
         Header: <i style={{ color: '#6a0e17' }}>Конец Атестации</i>,
       },
       {
         accessorKey: "inn",
         header: "ИНН",
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
+        muiTableBodyCellEditTextFieldProps: ({ cell, row }) => ({
+          ...getCommonEditTextFieldProps(cell, row),
         }),
       },
     ],
