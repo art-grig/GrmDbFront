@@ -22,10 +22,14 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import { data, states } from '../Components/makeData';
 import { Client, LegalEntityVm } from '../apiClients';
+import { ddmmyyyy } from '../utils';
+import { GrmDatePicker } from './Persons';
 
 const LegalEntityVmTable: FC = () => {
+  const [createOrUpdateModalOpen, setCreateOrUpdateModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [tableData, setTableData] = useState<LegalEntityVm[]>([]);
+  const [editLegalEntitiesRow, setEditLegalEntitiesRow] = useState<MRT_Row<LegalEntityVm> | undefined>(undefined);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
@@ -40,14 +44,20 @@ const LegalEntityVmTable: FC = () => {
     fetchLegalEntities();
   }, []);
 
-  const handleCreateNewRow = async (model: LegalEntityVm) => {
-    model.id = 0;
+
+  const handleCreateOrUpdateNewRow = async (model: LegalEntityVm) => {
+    model.id = model.id ?? 0;
     const createLegalEntityResp = await apiClient.legalEntityPOST(model);
     const newLegalEntity = createLegalEntityResp.data;
-    if (newLegalEntity) {
+    if (model.id) {
+      setTableData(tableData.map(i => i.id === model.id ? model : i));
+    }
+    if (model.id === 0 && newLegalEntity) {
       setTableData([...[newLegalEntity!].concat(tableData)]);
     }
   };
+
+
 
   const handleSaveRowEdits: MaterialReactTableProps<LegalEntityVm>['onEditingRowSave'] =
     async ({ exitEditingMode, row, values }) => {
@@ -63,6 +73,12 @@ const LegalEntityVmTable: FC = () => {
     setValidationErrors({});
   };
 
+  const editRow = (row: MRT_Row<LegalEntityVm>) => {
+    setEditLegalEntitiesRow(row);
+    setCreateOrUpdateModalOpen(true);
+  }
+
+
   const handleDeleteRow = useCallback(
     async (row: MRT_Row<LegalEntityVm>) => {
       if (
@@ -70,7 +86,7 @@ const LegalEntityVmTable: FC = () => {
       ) {
         return;
       }
-      
+
       await apiClient.legalEntityDELETE(row.getValue('id'));
 
       tableData.splice(row.index, 1);
@@ -79,9 +95,21 @@ const LegalEntityVmTable: FC = () => {
     [tableData],
   );
 
+  const disableEditing = (row: MRT_Row<LegalEntityVm>, cell: MRT_Cell<LegalEntityVm>) => {
+    const disableFieldsList = ['certStartDate', 'certEndDate', 'insStartDate', 'insEndDate'];
+    console.log(cell.column.id);
+    if (disableFieldsList.includes(cell.column.id) && cell.getValue<Date | undefined>()) {
+      return true;
+    }
+
+
+    return false;
+  }
+
   const getCommonEditTextFieldProps = useCallback(
     (
       cell: MRT_Cell<LegalEntityVm>,
+      row: MRT_Row<LegalEntityVm>,
     ): MRT_ColumnDef<LegalEntityVm>['muiTableBodyCellEditTextFieldProps'] => {
       return {
         error: !!validationErrors[cell.id],
@@ -91,8 +119,8 @@ const LegalEntityVmTable: FC = () => {
             cell.column.id === 'email'
               ? validateEmail(event.target.value)
               : cell.column.id === 'vote'
-              ? validateAge(+event.target.value)
-              : validateRequired(event.target.value);
+                ? validateAge(+event.target.value)
+                : validateRequired(event.target.value);
           if (!isValid) {
             //set validation error for cell if invalid
             setValidationErrors({
@@ -112,8 +140,8 @@ const LegalEntityVmTable: FC = () => {
     [validationErrors],
   );
 
-    console.log(tableData);
-    
+  console.log(tableData);
+
   const columns = useMemo<MRT_ColumnDef<LegalEntityVm>[]>(
     () => [
       {
@@ -121,81 +149,53 @@ const LegalEntityVmTable: FC = () => {
         header: 'Id',
         size: 20,
         enableEditing: false,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
-      },
+        },
       {
         accessorKey: 'name',
         header: 'Название',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
       },
       {
         accessorKey: 'votes',
         header: 'Голоса',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
           type: 'number',
-        }),
       },
+      {
+        accessorKey: 'inn',
+        header: 'ИНН',
+        size: 140,
+       },
       {
         accessorKey: 'certStartDate',
         header: 'Начало Сертефикации',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'date',
-        }),
-        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
         Header: <i style={{ color: '#00a48a' }}>Начало Сертефикации</i>,
       },
       {
         accessorKey: 'certEndDate',
         header: 'Конец Сертефикации',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'date',
-        }),
-        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
         Header: <i style={{ color: '#6a0e17' }}>Конец Сертефикации</i>,
       },
       {
         accessorKey: 'insStartDate',
         header: 'Начало Страховки',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'date',
-        }),
-        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
         Header: <i style={{ color: '#00a48a' }}>Начало Страховки</i>,
       },
       {
         accessorKey: 'insEndDate',
         header: 'Конец Страховки',
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'date',
-        }),
-        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
+        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
         Header: <i style={{ color: '#6a0e17' }}>Конец Страховки</i>,
       },
-      {
-        accessorKey: 'inn',
-        header: 'ИНН',
-        size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
-      },
-    ],
-    [getCommonEditTextFieldProps],
+      ],
+    []
   );
 
   return (
@@ -218,9 +218,9 @@ const LegalEntityVmTable: FC = () => {
         onEditingRowCancel={handleCancelRowEdits}
         localization={MRT_Localization_RU}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <Box sx={{ display: "flex", gap: "1rem" }}>
             <Tooltip arrow placement="left" title="Изменить">
-              <IconButton onClick={() => table.setEditingRow(row)}>
+              <IconButton onClick={() => editRow(row)}>
                 <Edit />
               </IconButton>
             </Tooltip>
@@ -234,7 +234,7 @@ const LegalEntityVmTable: FC = () => {
         renderTopToolbarCustomActions={() => (
           <Button
             color="success"
-            onClick={() => setCreateModalOpen(true)}
+            onClick={() => setCreateOrUpdateModalOpen(true)}
             variant="contained"
           >
             Добавить
@@ -243,13 +243,17 @@ const LegalEntityVmTable: FC = () => {
       />
       <CreateNewAccountModal
         columns={columns}
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onSubmit={handleCreateNewRow}
+        open={createOrUpdateModalOpen}
+        onClose={() => { setEditLegalEntitiesRow(undefined); setCreateOrUpdateModalOpen(false); }}
+        onSubmit={handleCreateOrUpdateNewRow}
+        legalEntitiesRow={editLegalEntitiesRow}
       />
     </>
   );
 };
+
+
+
 
 //example of creating a mui dialog modal for creating new rows
 export const CreateNewAccountModal: FC<{
@@ -257,13 +261,24 @@ export const CreateNewAccountModal: FC<{
   onClose: () => void;
   onSubmit: (values: LegalEntityVm) => void;
   open: boolean;
-}> = ({ open, columns, onClose, onSubmit }) => {
+  legalEntitiesRow?: MRT_Row<LegalEntityVm>;
+}> = ({open, columns, onClose, onSubmit, legalEntitiesRow }) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
-      acc[column.accessorKey ?? ''] = '';
+      acc[column.accessorKey ?? ""] = legalEntitiesRow?.getValue(column.accessorKey ?? '');
       return acc;
-    }, {} as any),
+    }, {} as any)
   );
+
+  useEffect(() => {
+    setValues(() =>
+      columns.reduce((acc, column) => {
+        acc[column.accessorKey ?? ""] = legalEntitiesRow?.getValue(column.accessorKey ?? '');
+        return acc;
+      }, {} as any));
+
+  }, [legalEntitiesRow]);
+
 
   const handleSubmit = () => {
     //put your validation logic here
@@ -273,7 +288,7 @@ export const CreateNewAccountModal: FC<{
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign="center">Добавление Юр. Лицо</DialogTitle>
+      <DialogTitle textAlign="center">{(legalEntitiesRow && 'Редактирование Юр. Лица') || 'Добавление Юр. Лица'}</DialogTitle>
       <DialogContent>
         <form onSubmit={(e) => e.preventDefault()}>
           <Stack
@@ -283,77 +298,75 @@ export const CreateNewAccountModal: FC<{
               gap: '1.5rem',
             }}
           >
-            <><br /></>
+            <br />
             <TextField
-                key={columns[1].accessorKey}
-                label={columns[1].header}
-                name={columns[1].accessorKey}
-                
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
-              <TextField
-                key={columns[2].accessorKey}
-                label={columns[2].header}
-                name={columns[2].accessorKey}
-                type='number'
-                
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
-              <><p className='certStart'>Начало Сертефикации</p></>
-              <TextField
-                key={columns[3].accessorKey}
-                name={columns[3].accessorKey}
-                type='date'
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
-              <><p className='certEnd'>Конец Сертефикации</p></>
-              <TextField
-                key={columns[4].accessorKey}
-                name={columns[4].accessorKey}
-                type='date'        
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
-              <><p className='certStart'>Начало Страховки</p></>
-               <TextField
-                key={columns[5].accessorKey}
-                name={columns[5].accessorKey}
-                type='date'        
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
-               <><p className='certEnd'>Конец Страховки</p></>
-               <TextField
-                key={columns[6].accessorKey}
-                name={columns[6].accessorKey}
-                type='date'        
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
+              key={columns[1].accessorKey}
+              label={columns[1].header}
+              name={columns[1].accessorKey}
+              defaultValue={legalEntitiesRow?.getValue(columns[1].accessorKey ?? '')}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+            />
             <TextField
-                key={columns[7].accessorKey}
-                name={columns[7].accessorKey}    
-                label={columns[7].header}
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
+              key={columns[2].accessorKey}
+              label={columns[2].header}
+              name={columns[2].accessorKey}
+              type='number'
+              defaultValue={legalEntitiesRow?.getValue(columns[2].accessorKey ?? '')}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+            />
+             <TextField
+              key={columns[3].accessorKey}
+              label={columns[3].header}
+              name={columns[3].accessorKey}
+              defaultValue={legalEntitiesRow?.getValue(columns[3].accessorKey ?? '')}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+            />
+            <GrmDatePicker
+              label={columns[4].header}
+              initValue={legalEntitiesRow?.getValue(columns[4].accessorKey ?? '') ?? null}
+              disabled={legalEntitiesRow?.getValue(columns[4].accessorKey ?? '')}
+              onChange={(newVal) =>
+                setValues({ ...values, [columns[4].accessorKey as string]: newVal })
+              }
+            />
+            <GrmDatePicker
+              label={columns[5].header}
+              initValue={legalEntitiesRow?.getValue(columns[5].accessorKey ?? '') ?? null}
+              disabled={legalEntitiesRow?.getValue(columns[5].accessorKey ?? '')}
+              onChange={(newVal) =>
+                setValues({ ...values, [columns[5].accessorKey as string]: newVal })
+              }
+            />
+            <GrmDatePicker
+              label={columns[6].header}
+              initValue={legalEntitiesRow?.getValue(columns[6].accessorKey ?? '') ?? null}
+              disabled={legalEntitiesRow?.getValue(columns[6].accessorKey ?? '')}
+              onChange={(newVal) =>
+                setValues({ ...values, [columns[6].accessorKey as string]: newVal })
+              }
+            />
+            <GrmDatePicker
+              label={columns[7].header}
+              initValue={legalEntitiesRow?.getValue(columns[7].accessorKey ?? '') ?? null}
+              disabled={legalEntitiesRow?.getValue(columns[7].accessorKey ?? '')}
+              onChange={(newVal) =>
+                setValues({ ...values, [columns[7].accessorKey as string]: newVal })
+              }
+            />
+           
           </Stack>
         </form>
       </DialogContent>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Отмена</Button>
         <Button color="success" onClick={handleSubmit} variant="contained">
-        Добавить
+        {(legalEntitiesRow?.getValue(columns[0].accessorKey ?? '') && 'Изменить') as string || 'Добавить'}
         </Button>
       </DialogActions>
     </Dialog>

@@ -24,10 +24,17 @@ import {
 import { Delete, Edit } from "@mui/icons-material";
 import { data, states } from "../Components/makeData";
 import { Client, LegalEntityVm, PersonVm } from "../apiClients";
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { ru } from 'date-fns/locale'
+import { ddmmyyyy } from '../utils';
+
 
 const PersonVmTable: FC = () => {
-  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createOrUpdateModalOpen, setCreateOrUpdateModalOpen] = useState(false);
   const [tableData, setTableData] = useState<PersonVm[]>([]);
+  const [editPersonRow, setEditPersonRow] = useState<MRT_Row<PersonVm> | undefined>(undefined);
   const [legalEntitiesMap, setLegalEntitiesMap] = useState<Map<string | undefined, LegalEntityVm>>(new Map());
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
@@ -36,7 +43,7 @@ const PersonVmTable: FC = () => {
   const apiClient = new Client("http://localhost:5200");
 
   function delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   useEffect(() => {
@@ -58,12 +65,15 @@ const PersonVmTable: FC = () => {
     }, timeout);
   }, []);
 
-  const handleCreateNewRow = async (model: PersonVm) => {
-    model.id = 0;
+  const handleCreateOrUpdateNewRow = async (model: PersonVm) => {
+    model.id = model.id ?? 0;
     model.legalEntityId = legalEntitiesMap.get(model.legalEntityName)?.id;
     const createPersonResp = await apiClient.employeePOST(model);
     const newPerson = createPersonResp.data;
-    if (newPerson) {
+    if (model.id) {
+      setTableData(tableData.map(i => i.id === model.id ? model : i));
+    }
+    if (model.id === 0 && newPerson) {
       setTableData([...[newPerson!].concat(tableData)]);
     }
   };
@@ -83,6 +93,11 @@ const PersonVmTable: FC = () => {
   const handleCancelRowEdits = () => {
     setValidationErrors({});
   };
+
+  const editRow = (row: MRT_Row<PersonVm>) => {
+    setEditPersonRow(row);
+    setCreateOrUpdateModalOpen(true);
+  }
 
   const handleDeleteRow = useCallback(
     async (row: MRT_Row<PersonVm>) => {
@@ -106,9 +121,21 @@ const PersonVmTable: FC = () => {
     [tableData]
   );
 
+  const disableEditing = (row: MRT_Row<PersonVm>, cell: MRT_Cell<PersonVm>) => {
+    const disableFieldsList = ['attStartDate', 'attEndDate'];
+    console.log(cell.getValue());
+    if (disableFieldsList.includes(cell.column.id) && cell.getValue<Date | undefined>()) {
+      return true;
+    }
+
+    return false;
+  }
+
+
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<PersonVm>
+      cell: MRT_Cell<PersonVm>,
+      row: MRT_Row<PersonVm>,
     ): MRT_ColumnDef<PersonVm>["muiTableBodyCellEditTextFieldProps"] => {
       return {
         error: !!validationErrors[cell.id],
@@ -118,8 +145,8 @@ const PersonVmTable: FC = () => {
             cell.column.id === "email"
               ? validateEmail(event.target.value)
               : cell.column.id === "vote"
-              ? validateAge(+event.target.value)
-              : validateRequired(event.target.value);
+                ? validateAge(+event.target.value)
+                : validateRequired(event.target.value);
           if (!isValid) {
             //set validation error for cell if invalid
             setValidationErrors({
@@ -138,7 +165,7 @@ const PersonVmTable: FC = () => {
     },
     [validationErrors]
   );
-  
+
   const columns = useMemo<MRT_ColumnDef<PersonVm>[]>(
     () => [
       {
@@ -146,91 +173,55 @@ const PersonVmTable: FC = () => {
         header: "Id",
         size: 20,
         enableEditing: false,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
       },
       {
         accessorKey: "legalEntityName",
         header: "Компания",
-        muiTableBodyCellEditTextFieldProps: ({ row }) => { 
-          return {
-            children: Array.from(legalEntitiesMap.values()).map((le) => (
-              <MenuItem key={le.name} value={le.name}>
-                {le.name}
-              </MenuItem>
-            )),
-            select: true,
-          }
-        },
       },
       {
         accessorKey: "name",
         header: "Имя",
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
       },
       {
         accessorKey: "surname",
         header: "Фамилия",
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
       },
       {
         accessorKey: "patronymic",
         header: "Отчество",
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
-      },
-      {
-        id: 'createdOn',
-        accessorFn: (r) => r.createdOn?.toLocaleDateString(),
-        header: "Дата создания",
-        size: 140,
-        enableEditing: false,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
-        Header: <i style={{ color: '#005d62' }}>Дата создания</i>,
-      },
-      {
-        accessorKey: "attStartDate",
-        header: "Начало Атестации",
-        size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'date',
-        }),   
-        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
-        Header: <i style={{ color: '#00a48a' }}>Начало Атестации</i>,
-      },
-      {
-        accessorKey: "attEndDate",
-        header: "Конец Атестации",
-        size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'date',
-        }),
-        Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(),
-        Header: <i style={{ color: '#6a0e17' }}>Конец Атестации</i>,
       },
       {
         accessorKey: "inn",
         header: "ИНН",
         size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
+      },
+      {
+        accessorKey: 'createdOn',
+        header: "Дата создания",
+        size: 140,
+        enableEditing: false,
+        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
+        Header: <i style={{ color: '#005d62' }}>Дата создания</i>,
+      },
+      {
+        accessorKey: 'attStartDate',
+        header: "Начало Атестации",
+        size: 140,
+        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
+        Header: <i style={{ color: '#00a48a' }}>Начало Атестации</i>,
+      },
+      {
+        accessorKey: 'attEndDate',
+        header: "Конец Атестации",
+        size: 140,
+        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
+        Header: <i style={{ color: '#6a0e17' }}>Конец Атестации</i>,
       },
     ],
-    [getCommonEditTextFieldProps, legalEntitiesMap]
+    []
   );
 
   return (
@@ -255,7 +246,7 @@ const PersonVmTable: FC = () => {
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: "flex", gap: "1rem" }}>
             <Tooltip arrow placement="left" title="Изменить">
-              <IconButton onClick={() => table.setEditingRow(row)}>
+              <IconButton onClick={() => editRow(row)}>
                 <Edit />
               </IconButton>
             </Tooltip>
@@ -269,38 +260,82 @@ const PersonVmTable: FC = () => {
         renderTopToolbarCustomActions={() => (
           <Button
             color="success"
-            onClick={() => setCreateModalOpen(true)}
+            onClick={() => setCreateOrUpdateModalOpen(true)}
             variant="contained"
           >
             Добавить
           </Button>
         )}
       />
-      <CreatePersonModal
+      <CreateOrUpdatePersonModal
         columns={columns}
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onSubmit={handleCreateNewRow}
+        open={createOrUpdateModalOpen}
+        onClose={() => { setEditPersonRow(undefined); setCreateOrUpdateModalOpen(false); }}
+        onSubmit={handleCreateOrUpdateNewRow}
         legalEntitiesMap={legalEntitiesMap}
+        personRow={editPersonRow}
       />
     </>
   );
 };
 
+export const GrmDatePicker: FC<{
+  label: string;
+  initValue: Date | null;
+  onChange: (value: Date | null, keyboardInputValue?: string | undefined) => any;
+  disabled?: boolean;
+}> = ({ label, initValue, onChange, disabled }) => {
+  const [value, setValue] = useState<Date | null>(initValue);
+  const handleChange = (newValue: Date | null) => {
+    setValue(newValue);
+    onChange(newValue);
+  }
+
+  return (
+    <LocalizationProvider locale={ru} dateAdapter={AdapterDateFns}>
+      <DatePicker
+        label={label}
+        // inputFormat="dd.MM.yyyy"
+        disabled={disabled}
+        value={value}
+        onChange={handleChange}
+        renderInput={(params) => <TextField {...params}
+        inputProps={
+          { 
+            ...params.inputProps, 
+            placeholder: "дд.мм.гггг" 
+          }
+        } />}
+      />
+    </LocalizationProvider>
+  )
+}
+
+
 //example of creating a mui dialog modal for creating new rows
-export const CreatePersonModal: FC<{
+export const CreateOrUpdatePersonModal: FC<{
   columns: MRT_ColumnDef<PersonVm>[];
   onClose: () => void;
   onSubmit: (values: PersonVm) => void;
   legalEntitiesMap: Map<string | undefined, LegalEntityVm>,
   open: boolean;
-}> = ({ legalEntitiesMap, open, columns, onClose, onSubmit }) => {
+  personRow?: MRT_Row<PersonVm>;
+}> = ({ legalEntitiesMap, open, columns, onClose, onSubmit, personRow }) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
-      acc[column.accessorKey ?? ""] = "";
+      acc[column.accessorKey ?? ""] = personRow?.getValue(column.accessorKey ?? '');
       return acc;
     }, {} as any)
   );
+
+  useEffect(() => {
+    setValues(() =>
+      columns.reduce((acc, column) => {
+        acc[column.accessorKey ?? ""] = personRow?.getValue(column.accessorKey ?? '');
+        return acc;
+      }, {} as any));
+
+  }, [personRow]);
 
   const handleSubmit = () => {
     //put your validation logic here
@@ -310,8 +345,8 @@ export const CreatePersonModal: FC<{
   };
 
   return (
-      <Dialog  open={open}>
-      <DialogTitle textAlign="center">Добавление Физ. Лица</DialogTitle>
+    <Dialog open={open}>
+      <DialogTitle textAlign="center">{(personRow && 'Редактирование Физ. Лица') || 'Добавление Физ. Лица'}</DialogTitle>
       <DialogContent>
         <form onSubmit={(e) => e.preventDefault()}>
           <Stack
@@ -321,13 +356,24 @@ export const CreatePersonModal: FC<{
               gap: "1.5rem",
             }}
           >
-            <br/>
+            <br />
+            <>{personRow?.getValue(columns[0].accessorKey ?? '') && <TextField
+              key={columns[0].accessorKey}
+              label={columns[0].header}
+              name={columns[0].accessorKey}
+              disabled={true}
+              defaultValue={personRow?.getValue(columns[0].accessorKey ?? '')}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
+              }
+            />}</>
             <TextField
               key={columns[1].accessorKey}
               label={columns[1].header}
               name={columns[1].accessorKey}
+              defaultValue={personRow?.getValue(columns[1].accessorKey ?? '')}
               select
-              children={Array.from(legalEntitiesMap.values()).map(le => 
+              children={Array.from(legalEntitiesMap.values()).map(le =>
               (<MenuItem key={le.name} value={le.name}>
                 {le.name}
               </MenuItem>))}
@@ -339,6 +385,7 @@ export const CreatePersonModal: FC<{
               key={columns[2].accessorKey}
               label={columns[2].header}
               name={columns[2].accessorKey}
+              defaultValue={personRow?.getValue(columns[2].accessorKey ?? '')}
               onChange={(e) =>
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
@@ -347,6 +394,7 @@ export const CreatePersonModal: FC<{
               key={columns[3].accessorKey}
               label={columns[3].header}
               name={columns[3].accessorKey}
+              defaultValue={personRow?.getValue(columns[3].accessorKey ?? '')}
               onChange={(e) =>
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
@@ -355,47 +403,48 @@ export const CreatePersonModal: FC<{
               key={columns[4].accessorKey}
               label={columns[4].header}
               name={columns[4].accessorKey}
-              onChange={(e) =>
-                setValues({ ...values, [e.target.name]: e.target.value })
-              }
-            />
-            <> <p className="startAtt"> Начало Атестации </p> </>
-            <TextField
-              key={columns[6].accessorKey}   
-              name={columns[6].accessorKey}
-              type='date'
-              onChange={(e) =>
-                setValues({ ...values, [e.target.name]: e.target.value })
-              }
-            />
-            <> <p className="endAtt">Конец Атестации </p></>
-            <TextField
-              key={columns[7].accessorKey}
-              name={columns[7].accessorKey}
-              type='date'
+              defaultValue={personRow?.getValue(columns[4].accessorKey ?? '')}
               onChange={(e) =>
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
             />
               <TextField
-              key={columns[8].accessorKey}
-              label={columns[8].header}
-              name={columns[8].accessorKey}
+              key={columns[5].accessorKey}
+              label={columns[5].header}
+              name={columns[5].accessorKey}
+              defaultValue={personRow?.getValue(columns[5].accessorKey ?? '')}
               onChange={(e) =>
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
             />
+            <GrmDatePicker
+              label={columns[7].header}
+              initValue={personRow?.getValue(columns[7].accessorKey ?? '') ?? null}
+              disabled={personRow?.getValue(columns[7].accessorKey ?? '')}
+              onChange={(newVal) =>
+                setValues({ ...values, [columns[7].accessorKey as string]: newVal })
+              }
+            />
+            <GrmDatePicker
+              label={columns[8].header}
+              initValue={personRow?.getValue(columns[8].accessorKey ?? '') ?? null}
+              disabled={personRow?.getValue(columns[8].accessorKey ?? '')}
+              onChange={(newVal) =>
+                setValues({ ...values, [columns[8].accessorKey as string]: newVal })
+              }
+            />
+          
           </Stack>
         </form>
       </DialogContent>
       <DialogActions sx={{ p: "1.25rem" }}>
         <Button onClick={onClose}>Отмена</Button>
         <Button color="success" onClick={handleSubmit} variant="contained">
-          Добавить
+          {(personRow?.getValue(columns[0].accessorKey ?? '') && 'Изменить') as string || 'Добавить'}
         </Button>
       </DialogActions>
     </Dialog>
-   
+
   );
 };
 
