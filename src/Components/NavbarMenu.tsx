@@ -10,12 +10,12 @@ import Logo from './Logo';
 function ColorSchemesExample() {
   return (
     <>
-      <Navbar bg="dark" variant="dark">
+      <Navbar>
         <Container>
           <Navbar.Brand href="#/"><Logo /> </Navbar.Brand>
           <Nav className="me-left">
-            <Nav.Link href="/#/legalEntity" className='leNav'>Юр. лица</Nav.Link>
-            <Nav.Link href="/#/person" className='persNav'>Физ. лица</Nav.Link>
+            <Nav.Link href="/#/legalEntity" className='nav'>Юр. лица</Nav.Link>
+            <Nav.Link href="/#/person" className='nav'>Физ. лица</Nav.Link>
             
           </Nav>
         </Container>

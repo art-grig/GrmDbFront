@@ -14,28 +14,18 @@
     width: 21.875rem;
 }
 
-.leNav{
-    color: #b0dfd7;
+.nav{
+    color: rgb(53 93 98);
     font-size: 18px;
     font-family: sans-serif;
 }
-.leNav:hover{
-    color: #00a48a;
-}
-.nav-link:active{
-    color: #b0dfd76c;
+.navbar-nav .nav-link.active{
+    color: rgb(53 93 98);
     font-size: 18px;
     font-family: sans-serif;
+    font-weight: bold;
 }
 
-.persNav{
-    color: #b0dfd7;
-    font-size: 18px;
-    font-family: sans-serif;
-}
-.persNav:hover{
-    color: #00a48a;
-}
 .login{
     color: #b0dfd7;
     font-size: 18px;
@@ -144,7 +134,7 @@ body {
   font: 400 16px/1.5 exo, ubuntu, "segoe ui", helvetica, arial, sans-serif;
   text-align: center;
   /* img size is 50x50 */
-  background: url("../images/blue-snow.png") repeat 0 0;
+  /* background: url("../images/blue-snow.png") repeat 0 0; */
   -webkit-animation: bg-scrolling-reverse 1s infinite;
   /* Safari 4+ */
   -moz-animation: bg-scrolling-reverse 1s infinite;
