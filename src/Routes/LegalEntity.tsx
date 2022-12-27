@@ -142,6 +142,17 @@ const LegalEntityVmTable: FC = () => {
 
   console.log(tableData);
 
+  const getMembershipTypeStr = (num: number): string | null => {
+    switch (num) {  
+      case 0:
+        return "Действ.";
+      case 1:
+        return "Не действ.";
+    };
+
+    return null;
+  }
+
   const columns = useMemo<MRT_ColumnDef<LegalEntityVm>[]>(
     () => [
       {
@@ -153,6 +164,12 @@ const LegalEntityVmTable: FC = () => {
       {
         accessorKey: 'name',
         header: 'Название',
+        size: 140,
+      },
+      {
+        accessorKey: 'membershipType',
+        header: 'Членство',
+        Cell: ({ cell }) => getMembershipTypeStr(cell.getValue<number>()),
         size: 140,
       },
       {
@@ -312,27 +329,36 @@ export const CreateNewAccountModal: FC<{
               key={columns[2].accessorKey}
               label={columns[2].header}
               name={columns[2].accessorKey}
-              type='number'
               defaultValue={legalEntitiesRow?.getValue(columns[2].accessorKey ?? '')}
+              select
+              children={[
+              (<MenuItem key={0} value={0}>
+                {'Действ.'}
+              </MenuItem>),
+              (<MenuItem key={1} value={1}>
+                {'Не действ.'}
+              </MenuItem>)]}
               onChange={(e) =>
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
             />
-             <TextField
+            <TextField
               key={columns[3].accessorKey}
               label={columns[3].header}
               name={columns[3].accessorKey}
+              type='number'
               defaultValue={legalEntitiesRow?.getValue(columns[3].accessorKey ?? '')}
               onChange={(e) =>
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
             />
-            <GrmDatePicker
+             <TextField
+              key={columns[4].accessorKey}
               label={columns[4].header}
-              initValue={legalEntitiesRow?.getValue(columns[4].accessorKey ?? '') ?? null}
-              disabled={legalEntitiesRow?.getValue(columns[4].accessorKey ?? '')}
-              onChange={(newVal) =>
-                setValues({ ...values, [columns[4].accessorKey as string]: newVal })
+              name={columns[4].accessorKey}
+              defaultValue={legalEntitiesRow?.getValue(columns[4].accessorKey ?? '')}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
               }
             />
             <GrmDatePicker
@@ -357,6 +383,14 @@ export const CreateNewAccountModal: FC<{
               disabled={legalEntitiesRow?.getValue(columns[7].accessorKey ?? '')}
               onChange={(newVal) =>
                 setValues({ ...values, [columns[7].accessorKey as string]: newVal })
+              }
+            />
+            <GrmDatePicker
+              label={columns[8].header}
+              initValue={legalEntitiesRow?.getValue(columns[8].accessorKey ?? '') ?? null}
+              disabled={legalEntitiesRow?.getValue(columns[8].accessorKey ?? '')}
+              onChange={(newVal) =>
+                setValues({ ...values, [columns[8].accessorKey as string]: newVal })
               }
             />
            
