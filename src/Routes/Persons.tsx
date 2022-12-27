@@ -28,7 +28,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ru } from 'date-fns/locale'
-import { ddmmyyyy, yyyymmdd } from '../utils';
+import { ddmmyyyy } from '../utils';
 import { ExportToCsv } from 'export-to-csv';
 
 
@@ -247,9 +247,9 @@ const PersonVmTable: FC = () => {
         surname: row.original.surname,
         patronymic: row.original.patronymic,
         inn: row.original.inn,
-        createdOn: yyyymmdd(row.original.createdOn) ?? '',
-        attStartDate: yyyymmdd(row.original.attStartDate) ?? '',
-        attEndDate: yyyymmdd(row.original.attEndDate) ?? '',
+        createdOn: ddmmyyyy(row.original.createdOn) ?? '',
+        attStartDate: ddmmyyyy(row.original.attStartDate) ?? '',
+        attEndDate: ddmmyyyy(row.original.attEndDate) ?? '',
       };
     }));
   };
