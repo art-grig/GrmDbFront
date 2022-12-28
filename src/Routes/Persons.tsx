@@ -29,6 +29,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ru } from 'date-fns/locale'
 import { ddmmyyyy } from '../utils';
+import { ExportToCsv } from 'export-to-csv';
 
 
 const PersonVmTable: FC = () => {
@@ -224,6 +225,35 @@ const PersonVmTable: FC = () => {
     []
   );
 
+  const csvOptions = {
+    fieldSeparator: ',',
+    quoteStrings: '"',
+    decimalSeparator: '.',
+    showLabels: true,
+    useBom: true,
+    useKeysAsHeaders: false,
+    headers: columns.map((c) => c.header),
+  };
+  
+  const csvExporter = new ExportToCsv(csvOptions);
+
+  const handleExportRows = (rows: any) => {
+    //@ts-ignore
+    csvExporter.generateCsv(rows.map((row) => {
+      return {
+        id: row.original.id,
+        legalEntityName: row.original.legalEntityName,
+        name: row.original.name,
+        surname: row.original.surname,
+        patronymic: row.original.patronymic,
+        inn: row.original.inn,
+        createdOn: ddmmyyyy(row.original.createdOn) ?? '',
+        attStartDate: ddmmyyyy(row.original.attStartDate) ?? '',
+        attEndDate: ddmmyyyy(row.original.attEndDate) ?? '',
+      };
+    }));
+  };
+
   return (
     <>
       <MaterialReactTable
@@ -257,7 +287,8 @@ const PersonVmTable: FC = () => {
             </Tooltip>
           </Box>
         )}
-        renderTopToolbarCustomActions={() => (
+        renderTopToolbarCustomActions={({ table }) => (
+          <>
           <Button
             color="success"
             onClick={() => setCreateOrUpdateModalOpen(true)}
@@ -265,6 +296,14 @@ const PersonVmTable: FC = () => {
           >
             Добавить
           </Button>
+          <Button 
+            variant="contained"
+            onClick={() => 
+            { 
+              handleExportRows(table.getFilteredRowModel().rows);
+            } 
+          }>Экспорт</Button>
+          </>
         )}
       />
       <CreateOrUpdatePersonModal
