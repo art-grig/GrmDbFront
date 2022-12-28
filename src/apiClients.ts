@@ -24,6 +24,544 @@ export class Client {
     }
 
     /**
+     * @return Success
+     */
+    byEmployeeId(employeeId: number , cancelToken?: CancelToken | undefined): Promise<AttestationIListResponseVm> {
+        let url_ = this.baseUrl + "/api/Attestation/ByEmployeeId/{employeeId}";
+        if (employeeId === undefined || employeeId === null)
+            throw new Error("The parameter 'employeeId' must be defined.");
+        url_ = url_.replace("{employeeId}", encodeURIComponent("" + employeeId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processByEmployeeId(_response);
+        });
+    }
+
+    protected processByEmployeeId(response: AxiosResponse): Promise<AttestationIListResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = AttestationIListResponseVm.fromJS(resultData200);
+            return Promise.resolve<AttestationIListResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<AttestationIListResponseVm>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    attestationPOST(body: Attestation | undefined , cancelToken?: CancelToken | undefined): Promise<AttestationResponseVm> {
+        let url_ = this.baseUrl + "/api/Attestation";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "POST",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processAttestationPOST(_response);
+        });
+    }
+
+    protected processAttestationPOST(response: AxiosResponse): Promise<AttestationResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = AttestationResponseVm.fromJS(resultData200);
+            return Promise.resolve<AttestationResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<AttestationResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    attestationGET(  cancelToken?: CancelToken | undefined): Promise<AttestationIListResponseVm> {
+        let url_ = this.baseUrl + "/api/Attestation";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processAttestationGET(_response);
+        });
+    }
+
+    protected processAttestationGET(response: AxiosResponse): Promise<AttestationIListResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = AttestationIListResponseVm.fromJS(resultData200);
+            return Promise.resolve<AttestationIListResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<AttestationIListResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    attestationDELETE(id: number , cancelToken?: CancelToken | undefined): Promise<BaseResponseVm> {
+        let url_ = this.baseUrl + "/api/Attestation/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "DELETE",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processAttestationDELETE(_response);
+        });
+    }
+
+    protected processAttestationDELETE(response: AxiosResponse): Promise<BaseResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = BaseResponseVm.fromJS(resultData200);
+            return Promise.resolve<BaseResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<BaseResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    attestationGET2(id: number , cancelToken?: CancelToken | undefined): Promise<AttestationResponseVm> {
+        let url_ = this.baseUrl + "/api/Attestation/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processAttestationGET2(_response);
+        });
+    }
+
+    protected processAttestationGET2(response: AxiosResponse): Promise<AttestationResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = AttestationResponseVm.fromJS(resultData200);
+            return Promise.resolve<AttestationResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<AttestationResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    byLegalEntityId(legalEntityId: number , cancelToken?: CancelToken | undefined): Promise<CertificationIListResponseVm> {
+        let url_ = this.baseUrl + "/api/Certification/ByLegalEntityId/{legalEntityId}";
+        if (legalEntityId === undefined || legalEntityId === null)
+            throw new Error("The parameter 'legalEntityId' must be defined.");
+        url_ = url_.replace("{legalEntityId}", encodeURIComponent("" + legalEntityId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processByLegalEntityId(_response);
+        });
+    }
+
+    protected processByLegalEntityId(response: AxiosResponse): Promise<CertificationIListResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = CertificationIListResponseVm.fromJS(resultData200);
+            return Promise.resolve<CertificationIListResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<CertificationIListResponseVm>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    certificationPOST(body: Certification | undefined , cancelToken?: CancelToken | undefined): Promise<CertificationResponseVm> {
+        let url_ = this.baseUrl + "/api/Certification";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "POST",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processCertificationPOST(_response);
+        });
+    }
+
+    protected processCertificationPOST(response: AxiosResponse): Promise<CertificationResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = CertificationResponseVm.fromJS(resultData200);
+            return Promise.resolve<CertificationResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<CertificationResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    certificationGET(  cancelToken?: CancelToken | undefined): Promise<CertificationIListResponseVm> {
+        let url_ = this.baseUrl + "/api/Certification";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processCertificationGET(_response);
+        });
+    }
+
+    protected processCertificationGET(response: AxiosResponse): Promise<CertificationIListResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = CertificationIListResponseVm.fromJS(resultData200);
+            return Promise.resolve<CertificationIListResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<CertificationIListResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    certificationDELETE(id: number , cancelToken?: CancelToken | undefined): Promise<BaseResponseVm> {
+        let url_ = this.baseUrl + "/api/Certification/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "DELETE",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processCertificationDELETE(_response);
+        });
+    }
+
+    protected processCertificationDELETE(response: AxiosResponse): Promise<BaseResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = BaseResponseVm.fromJS(resultData200);
+            return Promise.resolve<BaseResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<BaseResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    certificationGET2(id: number , cancelToken?: CancelToken | undefined): Promise<CertificationResponseVm> {
+        let url_ = this.baseUrl + "/api/Certification/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processCertificationGET2(_response);
+        });
+    }
+
+    protected processCertificationGET2(response: AxiosResponse): Promise<CertificationResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = CertificationResponseVm.fromJS(resultData200);
+            return Promise.resolve<CertificationResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<CertificationResponseVm>(null as any);
+    }
+
+    /**
      * @param body (optional) 
      * @return Success
      */
@@ -236,6 +774,275 @@ export class Client {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<PersonVmResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    byLegalEntityId2(legalEntityId: number , cancelToken?: CancelToken | undefined): Promise<InsuranceIListResponseVm> {
+        let url_ = this.baseUrl + "/api/Insurance/ByLegalEntityId/{legalEntityId}";
+        if (legalEntityId === undefined || legalEntityId === null)
+            throw new Error("The parameter 'legalEntityId' must be defined.");
+        url_ = url_.replace("{legalEntityId}", encodeURIComponent("" + legalEntityId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processByLegalEntityId2(_response);
+        });
+    }
+
+    protected processByLegalEntityId2(response: AxiosResponse): Promise<InsuranceIListResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = InsuranceIListResponseVm.fromJS(resultData200);
+            return Promise.resolve<InsuranceIListResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<InsuranceIListResponseVm>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    insurancePOST(body: Insurance | undefined , cancelToken?: CancelToken | undefined): Promise<InsuranceResponseVm> {
+        let url_ = this.baseUrl + "/api/Insurance";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "POST",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processInsurancePOST(_response);
+        });
+    }
+
+    protected processInsurancePOST(response: AxiosResponse): Promise<InsuranceResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = InsuranceResponseVm.fromJS(resultData200);
+            return Promise.resolve<InsuranceResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<InsuranceResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    insuranceGET(  cancelToken?: CancelToken | undefined): Promise<InsuranceIListResponseVm> {
+        let url_ = this.baseUrl + "/api/Insurance";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processInsuranceGET(_response);
+        });
+    }
+
+    protected processInsuranceGET(response: AxiosResponse): Promise<InsuranceIListResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = InsuranceIListResponseVm.fromJS(resultData200);
+            return Promise.resolve<InsuranceIListResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<InsuranceIListResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    insuranceDELETE(id: number , cancelToken?: CancelToken | undefined): Promise<BaseResponseVm> {
+        let url_ = this.baseUrl + "/api/Insurance/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "DELETE",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processInsuranceDELETE(_response);
+        });
+    }
+
+    protected processInsuranceDELETE(response: AxiosResponse): Promise<BaseResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = BaseResponseVm.fromJS(resultData200);
+            return Promise.resolve<BaseResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<BaseResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    insuranceGET2(id: number , cancelToken?: CancelToken | undefined): Promise<InsuranceResponseVm> {
+        let url_ = this.baseUrl + "/api/Insurance/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processInsuranceGET2(_response);
+        });
+    }
+
+    protected processInsuranceGET2(response: AxiosResponse): Promise<InsuranceResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = InsuranceResponseVm.fromJS(resultData200);
+            return Promise.resolve<InsuranceResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<InsuranceResponseVm>(null as any);
     }
 
     /**
@@ -512,6 +1319,196 @@ export class Client {
     }
 }
 
+export class Attestation implements IAttestation {
+    id?: number;
+    isDeleted?: boolean;
+    createdOn?: Date;
+    modifiedOn?: Date;
+    startDate?: Date;
+    endDate?: Date;
+    attestationType?: AttestationType;
+    number?: string | undefined;
+    employeeId?: number;
+    employees?: Employee;
+
+    constructor(data?: IAttestation) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.isDeleted = _data["isDeleted"];
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
+            this.modifiedOn = _data["modifiedOn"] ? new Date(_data["modifiedOn"].toString()) : <any>undefined;
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+            this.attestationType = _data["attestationType"];
+            this.number = _data["number"];
+            this.employeeId = _data["employeeId"];
+            this.employees = _data["employees"] ? Employee.fromJS(_data["employees"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): Attestation {
+        data = typeof data === 'object' ? data : {};
+        let result = new Attestation();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["isDeleted"] = this.isDeleted;
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
+        data["modifiedOn"] = this.modifiedOn ? this.modifiedOn.toISOString() : <any>undefined;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+        data["attestationType"] = this.attestationType;
+        data["number"] = this.number;
+        data["employeeId"] = this.employeeId;
+        data["employees"] = this.employees ? this.employees.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IAttestation {
+    id?: number;
+    isDeleted?: boolean;
+    createdOn?: Date;
+    modifiedOn?: Date;
+    startDate?: Date;
+    endDate?: Date;
+    attestationType?: AttestationType;
+    number?: string | undefined;
+    employeeId?: number;
+    employees?: Employee;
+}
+
+export class AttestationIListResponseVm implements IAttestationIListResponseVm {
+    success?: boolean;
+    readonly generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Attestation[] | undefined;
+
+    constructor(data?: IAttestationIListResponseVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            (<any>this).generatedAt = _data["generatedAt"] ? new Date(_data["generatedAt"].toString()) : <any>undefined;
+            this.userMessage = _data["userMessage"];
+            this.systemMessage = _data["systemMessage"];
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(Attestation.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AttestationIListResponseVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new AttestationIListResponseVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["generatedAt"] = this.generatedAt ? this.generatedAt.toISOString() : <any>undefined;
+        data["userMessage"] = this.userMessage;
+        data["systemMessage"] = this.systemMessage;
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IAttestationIListResponseVm {
+    success?: boolean;
+    generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Attestation[] | undefined;
+}
+
+export class AttestationResponseVm implements IAttestationResponseVm {
+    success?: boolean;
+    readonly generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Attestation;
+
+    constructor(data?: IAttestationResponseVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            (<any>this).generatedAt = _data["generatedAt"] ? new Date(_data["generatedAt"].toString()) : <any>undefined;
+            this.userMessage = _data["userMessage"];
+            this.systemMessage = _data["systemMessage"];
+            this.data = _data["data"] ? Attestation.fromJS(_data["data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): AttestationResponseVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new AttestationResponseVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["generatedAt"] = this.generatedAt ? this.generatedAt.toISOString() : <any>undefined;
+        data["userMessage"] = this.userMessage;
+        data["systemMessage"] = this.systemMessage;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IAttestationResponseVm {
+    success?: boolean;
+    generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Attestation;
+}
+
+export enum AttestationType {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+}
+
 export class BaseResponseVm implements IBaseResponseVm {
     success?: boolean;
     readonly generatedAt?: Date;
@@ -560,8 +1557,560 @@ export interface IBaseResponseVm {
     systemMessage?: string | undefined;
 }
 
-export class LegalEntityBaseVm implements ILegalEntityBaseVm {
+export class Certification implements ICertification {
     id?: number;
+    isDeleted?: boolean;
+    createdOn?: Date;
+    modifiedOn?: Date;
+    startDate?: Date;
+    endDate?: Date;
+    number?: string | undefined;
+    legalEntityId?: number;
+    legalEntity?: LegalEntity;
+
+    constructor(data?: ICertification) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.isDeleted = _data["isDeleted"];
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
+            this.modifiedOn = _data["modifiedOn"] ? new Date(_data["modifiedOn"].toString()) : <any>undefined;
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+            this.number = _data["number"];
+            this.legalEntityId = _data["legalEntityId"];
+            this.legalEntity = _data["legalEntity"] ? LegalEntity.fromJS(_data["legalEntity"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): Certification {
+        data = typeof data === 'object' ? data : {};
+        let result = new Certification();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["isDeleted"] = this.isDeleted;
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
+        data["modifiedOn"] = this.modifiedOn ? this.modifiedOn.toISOString() : <any>undefined;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+        data["number"] = this.number;
+        data["legalEntityId"] = this.legalEntityId;
+        data["legalEntity"] = this.legalEntity ? this.legalEntity.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICertification {
+    id?: number;
+    isDeleted?: boolean;
+    createdOn?: Date;
+    modifiedOn?: Date;
+    startDate?: Date;
+    endDate?: Date;
+    number?: string | undefined;
+    legalEntityId?: number;
+    legalEntity?: LegalEntity;
+}
+
+export class CertificationIListResponseVm implements ICertificationIListResponseVm {
+    success?: boolean;
+    readonly generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Certification[] | undefined;
+
+    constructor(data?: ICertificationIListResponseVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            (<any>this).generatedAt = _data["generatedAt"] ? new Date(_data["generatedAt"].toString()) : <any>undefined;
+            this.userMessage = _data["userMessage"];
+            this.systemMessage = _data["systemMessage"];
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(Certification.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CertificationIListResponseVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new CertificationIListResponseVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["generatedAt"] = this.generatedAt ? this.generatedAt.toISOString() : <any>undefined;
+        data["userMessage"] = this.userMessage;
+        data["systemMessage"] = this.systemMessage;
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICertificationIListResponseVm {
+    success?: boolean;
+    generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Certification[] | undefined;
+}
+
+export class CertificationResponseVm implements ICertificationResponseVm {
+    success?: boolean;
+    readonly generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Certification;
+
+    constructor(data?: ICertificationResponseVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            (<any>this).generatedAt = _data["generatedAt"] ? new Date(_data["generatedAt"].toString()) : <any>undefined;
+            this.userMessage = _data["userMessage"];
+            this.systemMessage = _data["systemMessage"];
+            this.data = _data["data"] ? Certification.fromJS(_data["data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CertificationResponseVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new CertificationResponseVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["generatedAt"] = this.generatedAt ? this.generatedAt.toISOString() : <any>undefined;
+        data["userMessage"] = this.userMessage;
+        data["systemMessage"] = this.systemMessage;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICertificationResponseVm {
+    success?: boolean;
+    generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Certification;
+}
+
+export class Employee implements IEmployee {
+    id?: number;
+    isDeleted?: boolean;
+    createdOn?: Date;
+    modifiedOn?: Date;
+    name?: string | undefined;
+    surname?: string | undefined;
+    patronymic?: string | undefined;
+    inn?: string | undefined;
+    legalEntityId?: number;
+    legalEntity?: LegalEntity;
+    attestations?: Attestation[] | undefined;
+
+    constructor(data?: IEmployee) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.isDeleted = _data["isDeleted"];
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
+            this.modifiedOn = _data["modifiedOn"] ? new Date(_data["modifiedOn"].toString()) : <any>undefined;
+            this.name = _data["name"];
+            this.surname = _data["surname"];
+            this.patronymic = _data["patronymic"];
+            this.inn = _data["inn"];
+            this.legalEntityId = _data["legalEntityId"];
+            this.legalEntity = _data["legalEntity"] ? LegalEntity.fromJS(_data["legalEntity"]) : <any>undefined;
+            if (Array.isArray(_data["attestations"])) {
+                this.attestations = [] as any;
+                for (let item of _data["attestations"])
+                    this.attestations!.push(Attestation.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Employee {
+        data = typeof data === 'object' ? data : {};
+        let result = new Employee();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["isDeleted"] = this.isDeleted;
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
+        data["modifiedOn"] = this.modifiedOn ? this.modifiedOn.toISOString() : <any>undefined;
+        data["name"] = this.name;
+        data["surname"] = this.surname;
+        data["patronymic"] = this.patronymic;
+        data["inn"] = this.inn;
+        data["legalEntityId"] = this.legalEntityId;
+        data["legalEntity"] = this.legalEntity ? this.legalEntity.toJSON() : <any>undefined;
+        if (Array.isArray(this.attestations)) {
+            data["attestations"] = [];
+            for (let item of this.attestations)
+                data["attestations"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IEmployee {
+    id?: number;
+    isDeleted?: boolean;
+    createdOn?: Date;
+    modifiedOn?: Date;
+    name?: string | undefined;
+    surname?: string | undefined;
+    patronymic?: string | undefined;
+    inn?: string | undefined;
+    legalEntityId?: number;
+    legalEntity?: LegalEntity;
+    attestations?: Attestation[] | undefined;
+}
+
+export class Insurance implements IInsurance {
+    id?: number;
+    isDeleted?: boolean;
+    createdOn?: Date;
+    modifiedOn?: Date;
+    startDate?: Date;
+    endDate?: Date;
+    legalEntityId?: number;
+    legalEntity?: LegalEntity;
+
+    constructor(data?: IInsurance) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.isDeleted = _data["isDeleted"];
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
+            this.modifiedOn = _data["modifiedOn"] ? new Date(_data["modifiedOn"].toString()) : <any>undefined;
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+            this.legalEntityId = _data["legalEntityId"];
+            this.legalEntity = _data["legalEntity"] ? LegalEntity.fromJS(_data["legalEntity"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): Insurance {
+        data = typeof data === 'object' ? data : {};
+        let result = new Insurance();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["isDeleted"] = this.isDeleted;
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
+        data["modifiedOn"] = this.modifiedOn ? this.modifiedOn.toISOString() : <any>undefined;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+        data["legalEntityId"] = this.legalEntityId;
+        data["legalEntity"] = this.legalEntity ? this.legalEntity.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IInsurance {
+    id?: number;
+    isDeleted?: boolean;
+    createdOn?: Date;
+    modifiedOn?: Date;
+    startDate?: Date;
+    endDate?: Date;
+    legalEntityId?: number;
+    legalEntity?: LegalEntity;
+}
+
+export class InsuranceIListResponseVm implements IInsuranceIListResponseVm {
+    success?: boolean;
+    readonly generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Insurance[] | undefined;
+
+    constructor(data?: IInsuranceIListResponseVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            (<any>this).generatedAt = _data["generatedAt"] ? new Date(_data["generatedAt"].toString()) : <any>undefined;
+            this.userMessage = _data["userMessage"];
+            this.systemMessage = _data["systemMessage"];
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(Insurance.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): InsuranceIListResponseVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new InsuranceIListResponseVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["generatedAt"] = this.generatedAt ? this.generatedAt.toISOString() : <any>undefined;
+        data["userMessage"] = this.userMessage;
+        data["systemMessage"] = this.systemMessage;
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IInsuranceIListResponseVm {
+    success?: boolean;
+    generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Insurance[] | undefined;
+}
+
+export class InsuranceResponseVm implements IInsuranceResponseVm {
+    success?: boolean;
+    readonly generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Insurance;
+
+    constructor(data?: IInsuranceResponseVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            (<any>this).generatedAt = _data["generatedAt"] ? new Date(_data["generatedAt"].toString()) : <any>undefined;
+            this.userMessage = _data["userMessage"];
+            this.systemMessage = _data["systemMessage"];
+            this.data = _data["data"] ? Insurance.fromJS(_data["data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): InsuranceResponseVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new InsuranceResponseVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["generatedAt"] = this.generatedAt ? this.generatedAt.toISOString() : <any>undefined;
+        data["userMessage"] = this.userMessage;
+        data["systemMessage"] = this.systemMessage;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IInsuranceResponseVm {
+    success?: boolean;
+    generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: Insurance;
+}
+
+export class LegalEntity implements ILegalEntity {
+    id?: number;
+    isDeleted?: boolean;
+    createdOn?: Date;
+    modifiedOn?: Date;
+    name?: string | undefined;
+    membershipType?: MembershipType;
+    legalEntityType?: LegalEntityType;
+    votes?: number;
+    inn?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
+    employees?: Employee[] | undefined;
+    certifications?: Certification[] | undefined;
+    insurances?: Insurance[] | undefined;
+
+    constructor(data?: ILegalEntity) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.isDeleted = _data["isDeleted"];
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
+            this.modifiedOn = _data["modifiedOn"] ? new Date(_data["modifiedOn"].toString()) : <any>undefined;
+            this.name = _data["name"];
+            this.membershipType = _data["membershipType"];
+            this.legalEntityType = _data["legalEntityType"];
+            this.votes = _data["votes"];
+            this.inn = _data["inn"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.email = _data["email"];
+            if (Array.isArray(_data["employees"])) {
+                this.employees = [] as any;
+                for (let item of _data["employees"])
+                    this.employees!.push(Employee.fromJS(item));
+            }
+            if (Array.isArray(_data["certifications"])) {
+                this.certifications = [] as any;
+                for (let item of _data["certifications"])
+                    this.certifications!.push(Certification.fromJS(item));
+            }
+            if (Array.isArray(_data["insurances"])) {
+                this.insurances = [] as any;
+                for (let item of _data["insurances"])
+                    this.insurances!.push(Insurance.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): LegalEntity {
+        data = typeof data === 'object' ? data : {};
+        let result = new LegalEntity();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["isDeleted"] = this.isDeleted;
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
+        data["modifiedOn"] = this.modifiedOn ? this.modifiedOn.toISOString() : <any>undefined;
+        data["name"] = this.name;
+        data["membershipType"] = this.membershipType;
+        data["legalEntityType"] = this.legalEntityType;
+        data["votes"] = this.votes;
+        data["inn"] = this.inn;
+        data["phoneNumber"] = this.phoneNumber;
+        data["email"] = this.email;
+        if (Array.isArray(this.employees)) {
+            data["employees"] = [];
+            for (let item of this.employees)
+                data["employees"].push(item.toJSON());
+        }
+        if (Array.isArray(this.certifications)) {
+            data["certifications"] = [];
+            for (let item of this.certifications)
+                data["certifications"].push(item.toJSON());
+        }
+        if (Array.isArray(this.insurances)) {
+            data["insurances"] = [];
+            for (let item of this.insurances)
+                data["insurances"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ILegalEntity {
+    id?: number;
+    isDeleted?: boolean;
+    createdOn?: Date;
+    modifiedOn?: Date;
+    name?: string | undefined;
+    membershipType?: MembershipType;
+    legalEntityType?: LegalEntityType;
+    votes?: number;
+    inn?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
+    employees?: Employee[] | undefined;
+    certifications?: Certification[] | undefined;
+    insurances?: Insurance[] | undefined;
+}
+
+export class LegalEntityBaseVm implements ILegalEntityBaseVm {
+    id?: number | undefined;
     name?: string | undefined;
     membershipType?: MembershipType;
     legalEntityType?: LegalEntityType;
@@ -569,6 +2118,9 @@ export class LegalEntityBaseVm implements ILegalEntityBaseVm {
     inn?: string | undefined;
     certStartDate?: Date | undefined;
     certEndDate?: Date | undefined;
+    certNumber?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
     insStartDate?: Date | undefined;
     insEndDate?: Date | undefined;
 
@@ -591,6 +2143,9 @@ export class LegalEntityBaseVm implements ILegalEntityBaseVm {
             this.inn = _data["inn"];
             this.certStartDate = _data["certStartDate"] ? new Date(_data["certStartDate"].toString()) : <any>undefined;
             this.certEndDate = _data["certEndDate"] ? new Date(_data["certEndDate"].toString()) : <any>undefined;
+            this.certNumber = _data["certNumber"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.email = _data["email"];
             this.insStartDate = _data["insStartDate"] ? new Date(_data["insStartDate"].toString()) : <any>undefined;
             this.insEndDate = _data["insEndDate"] ? new Date(_data["insEndDate"].toString()) : <any>undefined;
         }
@@ -613,6 +2168,9 @@ export class LegalEntityBaseVm implements ILegalEntityBaseVm {
         data["inn"] = this.inn;
         data["certStartDate"] = this.certStartDate ? this.certStartDate.toISOString() : <any>undefined;
         data["certEndDate"] = this.certEndDate ? this.certEndDate.toISOString() : <any>undefined;
+        data["certNumber"] = this.certNumber;
+        data["phoneNumber"] = this.phoneNumber;
+        data["email"] = this.email;
         data["insStartDate"] = this.insStartDate ? this.insStartDate.toISOString() : <any>undefined;
         data["insEndDate"] = this.insEndDate ? this.insEndDate.toISOString() : <any>undefined;
         return data;
@@ -620,7 +2178,7 @@ export class LegalEntityBaseVm implements ILegalEntityBaseVm {
 }
 
 export interface ILegalEntityBaseVm {
-    id?: number;
+    id?: number | undefined;
     name?: string | undefined;
     membershipType?: MembershipType;
     legalEntityType?: LegalEntityType;
@@ -628,6 +2186,9 @@ export interface ILegalEntityBaseVm {
     inn?: string | undefined;
     certStartDate?: Date | undefined;
     certEndDate?: Date | undefined;
+    certNumber?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
     insStartDate?: Date | undefined;
     insEndDate?: Date | undefined;
 }
@@ -638,7 +2199,7 @@ export enum LegalEntityType {
 }
 
 export class LegalEntityVm implements ILegalEntityVm {
-    id?: number;
+    id?: number | undefined;
     name?: string | undefined;
     membershipType?: MembershipType;
     legalEntityType?: LegalEntityType;
@@ -646,6 +2207,9 @@ export class LegalEntityVm implements ILegalEntityVm {
     inn?: string | undefined;
     certStartDate?: Date | undefined;
     certEndDate?: Date | undefined;
+    certNumber?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
     insStartDate?: Date | undefined;
     insEndDate?: Date | undefined;
     createdOn?: Date | undefined;
@@ -670,6 +2234,9 @@ export class LegalEntityVm implements ILegalEntityVm {
             this.inn = _data["inn"];
             this.certStartDate = _data["certStartDate"] ? new Date(_data["certStartDate"].toString()) : <any>undefined;
             this.certEndDate = _data["certEndDate"] ? new Date(_data["certEndDate"].toString()) : <any>undefined;
+            this.certNumber = _data["certNumber"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.email = _data["email"];
             this.insStartDate = _data["insStartDate"] ? new Date(_data["insStartDate"].toString()) : <any>undefined;
             this.insEndDate = _data["insEndDate"] ? new Date(_data["insEndDate"].toString()) : <any>undefined;
             this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
@@ -694,6 +2261,9 @@ export class LegalEntityVm implements ILegalEntityVm {
         data["inn"] = this.inn;
         data["certStartDate"] = this.certStartDate ? this.certStartDate.toISOString() : <any>undefined;
         data["certEndDate"] = this.certEndDate ? this.certEndDate.toISOString() : <any>undefined;
+        data["certNumber"] = this.certNumber;
+        data["phoneNumber"] = this.phoneNumber;
+        data["email"] = this.email;
         data["insStartDate"] = this.insStartDate ? this.insStartDate.toISOString() : <any>undefined;
         data["insEndDate"] = this.insEndDate ? this.insEndDate.toISOString() : <any>undefined;
         data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
@@ -703,7 +2273,7 @@ export class LegalEntityVm implements ILegalEntityVm {
 }
 
 export interface ILegalEntityVm {
-    id?: number;
+    id?: number | undefined;
     name?: string | undefined;
     membershipType?: MembershipType;
     legalEntityType?: LegalEntityType;
@@ -711,6 +2281,9 @@ export interface ILegalEntityVm {
     inn?: string | undefined;
     certStartDate?: Date | undefined;
     certEndDate?: Date | undefined;
+    certNumber?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
     insStartDate?: Date | undefined;
     insEndDate?: Date | undefined;
     createdOn?: Date | undefined;

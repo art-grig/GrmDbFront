@@ -22,7 +22,7 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import { data, states } from '../Components/makeData';
 import { Client, LegalEntityVm } from '../apiClients';
-import { ddmmyyyy } from '../utils';
+import { ddmmyyyy, getDateColumnConfig } from '../utils';
 import { GrmDatePicker } from './Persons';
 
 const LegalEntityVmTable: FC = () => {
@@ -96,7 +96,7 @@ const LegalEntityVmTable: FC = () => {
   );
 
   const disableEditing = (row: MRT_Row<LegalEntityVm>, cell: MRT_Cell<LegalEntityVm>) => {
-    const disableFieldsList = ['certStartDate', 'certEndDate', 'insStartDate', 'insEndDate'];
+    const disableFieldsList = ['certStartDate', 'certEndDate', 'insStartDate', 'insEndDate' , 'certNumber'];
     console.log(cell.column.id);
     if (disableFieldsList.includes(cell.column.id) && cell.getValue<Date | undefined>()) {
       return true;
@@ -140,7 +140,7 @@ const LegalEntityVmTable: FC = () => {
     [validationErrors],
   );
 
-  console.log(tableData);
+  console.log("TTT DATA" ,tableData);
 
   const getMembershipTypeStr = (num: number): string | null => {
     switch (num) {  
@@ -160,6 +160,7 @@ const LegalEntityVmTable: FC = () => {
         header: 'Id',
         size: 20,
         enableEditing: false,
+        Cell: ({ cell }) => <a href={`#/legalEntity/${cell.getValue<number>()}`}>{cell.getValue<number>()}</a>,
         },
       {
         accessorKey: 'name',
@@ -183,37 +184,32 @@ const LegalEntityVmTable: FC = () => {
         header: 'ИНН',
         size: 140,
        },
-      {
-        accessorKey: 'certStartDate',
-        header: 'Начало Сертефикации',
+       {
+        accessorKey: 'email',
+        header: 'Почта',
         size: 140,
-        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
-        Header: <i style={{ color: '#00a48a' }}>Начало Сертефикации</i>,
-      },
-      {
-        accessorKey: 'certEndDate',
-        header: 'Конец Сертефикации',
+       },
+       {
+        accessorKey: 'phoneNumber',
+        header: 'Номер Тел.',
         size: 140,
-        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
-        Header: <i style={{ color: '#6a0e17' }}>Конец Сертефикации</i>,
-      },
-      {
-        accessorKey: 'insStartDate',
-        header: 'Начало Страховки',
+       },
+       {
+        accessorKey: 'certNumber',
+        header: 'Номер Серт.',
         size: 140,
-        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
-        Header: <i style={{ color: '#00a48a' }}>Начало Страховки</i>,
-      },
-      {
-        accessorKey: 'insEndDate',
-        header: 'Конец Страховки',
-        size: 140,
-        Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
-        Header: <i style={{ color: '#6a0e17' }}>Конец Страховки</i>,
-      },
+        
+       },
+       getDateColumnConfig('certStartDate', 'Начало Серт.'),
+       getDateColumnConfig('certEndDate', 'Конец Серт.' , <i style={{ color: '#6a0e17' }}>Конец Серт.</i> ),
+       getDateColumnConfig('insStartDate', 'Начало Стх'),
+       getDateColumnConfig('insEndDate', 'Конец Стх.', <i style={{ color: '#6a0e17' }}>Конец Стх.</i>),
+     
       ],
     []
   );
+
+console.log("this table date" , tableData);
 
   return (
     <>
@@ -235,7 +231,7 @@ const LegalEntityVmTable: FC = () => {
         onEditingRowCancel={handleCancelRowEdits}
         localization={MRT_Localization_RU}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: "flex", gap: "1rem" }}>
+          <Box sx={{ display: "flex", gap: "12px" }}>
             <Tooltip arrow placement="left" title="Изменить">
               <IconButton onClick={() => editRow(row)}>
                 <Edit />
@@ -312,7 +308,7 @@ export const CreateNewAccountModal: FC<{
             sx={{
               width: '100%',
               minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem',
+              gap: '1rem',
             }}
           >
             <br />
@@ -352,7 +348,7 @@ export const CreateNewAccountModal: FC<{
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
             />
-             <TextField
+            <TextField
               key={columns[4].accessorKey}
               label={columns[4].header}
               name={columns[4].accessorKey}
@@ -361,29 +357,36 @@ export const CreateNewAccountModal: FC<{
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
             />
-            <GrmDatePicker
+            <TextField
+              key={columns[5].accessorKey}
               label={columns[5].header}
-              initValue={legalEntitiesRow?.getValue(columns[5].accessorKey ?? '') ?? null}
-              disabled={legalEntitiesRow?.getValue(columns[5].accessorKey ?? '')}
-              onChange={(newVal) =>
-                setValues({ ...values, [columns[5].accessorKey as string]: newVal })
+              name={columns[5].accessorKey}
+              defaultValue={legalEntitiesRow?.getValue(columns[5].accessorKey ?? '')}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
               }
+              
             />
-            <GrmDatePicker
+              <TextField
+              key={columns[6].accessorKey}
               label={columns[6].header}
-              initValue={legalEntitiesRow?.getValue(columns[6].accessorKey ?? '') ?? null}
-              disabled={legalEntitiesRow?.getValue(columns[6].accessorKey ?? '')}
-              onChange={(newVal) =>
-                setValues({ ...values, [columns[6].accessorKey as string]: newVal })
+              name={columns[6].accessorKey}
+              defaultValue={legalEntitiesRow?.getValue(columns[6].accessorKey ?? '')}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
               }
+              
             />
-            <GrmDatePicker
+            <TextField
+              key={columns[7].accessorKey}
               label={columns[7].header}
-              initValue={legalEntitiesRow?.getValue(columns[7].accessorKey ?? '') ?? null}
+              name={columns[7].accessorKey}
               disabled={legalEntitiesRow?.getValue(columns[7].accessorKey ?? '')}
-              onChange={(newVal) =>
-                setValues({ ...values, [columns[7].accessorKey as string]: newVal })
+              defaultValue={legalEntitiesRow?.getValue(columns[7].accessorKey ?? '')}
+              onChange={(e) =>
+                setValues({ ...values, [e.target.name]: e.target.value })
               }
+              
             />
             <GrmDatePicker
               label={columns[8].header}
@@ -391,6 +394,30 @@ export const CreateNewAccountModal: FC<{
               disabled={legalEntitiesRow?.getValue(columns[8].accessorKey ?? '')}
               onChange={(newVal) =>
                 setValues({ ...values, [columns[8].accessorKey as string]: newVal })
+              }
+            />
+            <GrmDatePicker
+              label={columns[9].header}
+              initValue={legalEntitiesRow?.getValue(columns[9].accessorKey ?? '') ?? null}
+              disabled={legalEntitiesRow?.getValue(columns[9].accessorKey ?? '')}
+              onChange={(newVal) =>
+                setValues({ ...values, [columns[9].accessorKey as string]: newVal })
+              }
+            />
+            <GrmDatePicker
+              label={columns[10].header}
+              initValue={legalEntitiesRow?.getValue(columns[10].accessorKey ?? '') ?? null}
+              disabled={legalEntitiesRow?.getValue(columns[10].accessorKey ?? '')}
+              onChange={(newVal) =>
+                setValues({ ...values, [columns[10].accessorKey as string]: newVal })
+              }
+            />
+            <GrmDatePicker
+              label={columns[11].header}
+              initValue={legalEntitiesRow?.getValue(columns[11].accessorKey ?? '') ?? null}
+              disabled={legalEntitiesRow?.getValue(columns[11].accessorKey ?? '')}
+              onChange={(newVal) =>
+                setValues({ ...values, [columns[11].accessorKey as string]: newVal })
               }
             />
            

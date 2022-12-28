@@ -11,6 +11,8 @@ import Person from './Routes/Persons';
 import LoginPage from './Routes/LoginPage';
 import StartMenu from './Routes/StartMenu';
 import Footer from './Components/Footer';
+import LegalEntityDetails from './Routes/LegalEntityDetails';
+import PersonDetails from './Routes/PersonsDetails';
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
@@ -24,9 +26,11 @@ root.render(
           <Route path="/table" element={<Table/>}/>
           <Route path="/legalEntity" element={<LegalEntity/>} /> 
           <Route path="/person" element={<Person/>} /> 
+          <Route path="/legalEntity/:legalEntityId" element={<LegalEntityDetails />} />
+          <Route path="/person/:employeeId" element={<PersonDetails />} />
         </Routes>
+      {/* <Footer /> */}
       </HashRouter>
-      <Footer />
   </React.StrictMode>
 );
 

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
 
 
 .legalEntity{
@@ -16,16 +17,31 @@
 
 .nav{
     color: rgb(53 93 98);
+}
+.nav:hover{
+  color:#212529;
+}
+
+.leNav{
+    color: #223334;
     font-size: 18px;
     font-family: sans-serif;
 }
 .navbar-nav .nav-link.active{
-    color: rgb(53 93 98);
-    font-size: 18px;
+  color: #212529;
+  font-size: 18px;
     font-family: sans-serif;
     font-weight: bold;
 }
 
+.persNav{
+    color: #223334;
+    font-size: 18px;
+    font-family: sans-serif;
+}
+.persNav:hover{
+    color: #212529
+}
 .login{
     color: #b0dfd7;
     font-size: 18px;
@@ -38,6 +54,7 @@
 /* Menu start */ 
 .startmenu {
     display: flex;
+    flex: 1 1 auto;
     margin-top: 5%;
     flex-direction: column;
     align-items: center;
@@ -64,14 +81,16 @@
 }
 
 .footer{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0.625rem;
+  margin-top: 15px;
+  bottom: 0rem;
   background-color: #212529;
   color: #00a48a;
-  position: fixed;
-  bottom: 0;
-  left: 0;
   width: 100%;
-  margin-top: 1rem;
-  padding: 10px;
 }
 .footer p{
   font-family: Haettenschweiler, 'Arial Narrow', sans-serif;
@@ -130,23 +149,8 @@
 }
 /* Main styles */
 body {
-  color: #2d2234;
-  font: 400 16px/1.5 exo, ubuntu, "segoe ui", helvetica, arial, sans-serif;
-  text-align: center;
-  /* img size is 50x50 */
-  /* background: url("../images/blue-snow.png") repeat 0 0; */
-  -webkit-animation: bg-scrolling-reverse 1s infinite;
-  /* Safari 4+ */
-  -moz-animation: bg-scrolling-reverse 1s infinite;
-  /* Fx 5+ */
-  -o-animation: bg-scrolling-reverse 1s infinite;
-  /* Opera 12+ */
-  animation: bg-scrolling-reverse 1s infinite;
-  /* IE 10+ */
-  -webkit-animation-timing-function: linear;
-  -moz-animation-timing-function: linear;
-  -o-animation-timing-function: linear;
-  animation-timing-function: linear;
+  background-color: #f8f9fa;
+  height: 100%;
 }
 body::before {
   font-size: 8rem;
@@ -191,4 +195,44 @@ body::before {
 html {
   width: 100%;
 }
+}
+
+.detailsForm {
+  margin-top: 5%;
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+    justify-content: space-around;
+    margin-bottom: 80px;
+}
+.detailsForm h1 {
+  font-family: 'Roboto', sans-serif;
+  padding: 5px;
+  font-size: 26px;
+  text-align: center;
+}
+.detailsForm p{
+  font-size: 18px;
+  margin-top: 0.375rem;
+  margin-bottom: 0.5rem;
+  color: #005d62;
+}
+
+
+.certificaton {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+.insurance {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+.attestation {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
 }
