@@ -174,6 +174,7 @@ const PersonVmTable: FC = () => {
         header: "Id",
         size: 20,
         enableEditing: false,
+        Cell: ({ cell }) => <a href={`#/person/${cell.getValue<number>()}`}>{cell.getValue<number>()}</a>,
       },
       {
         accessorKey: "legalEntityName",
@@ -288,7 +289,8 @@ const PersonVmTable: FC = () => {
           </Box>
         )}
         renderTopToolbarCustomActions={({ table }) => (
-          <>
+          <Box sx={{ display: "flex", gap: "1rem" }} >
+          
           <Button
             color="success"
             onClick={() => setCreateOrUpdateModalOpen(true)}
@@ -303,7 +305,7 @@ const PersonVmTable: FC = () => {
               handleExportRows(table.getFilteredRowModel().rows);
             } 
           }>Экспорт</Button>
-          </>
+          </Box>
         )}
       />
       <CreateOrUpdatePersonModal
