@@ -21,7 +21,7 @@ export function getDateColumnConfig(accessorKey: string, header: string, headerJ
   return {
     accessorKey: accessorKey,
     header: header,
-    size: 140,
+    size: 20,
     Cell: ({ cell }) => ddmmyyyy(cell.getValue<Date>()),
     Header: headerJsx,
     filterFn: (row, id, filterValue) =>
