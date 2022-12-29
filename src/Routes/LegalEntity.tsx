@@ -22,9 +22,9 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import { data, states } from '../Components/makeData';
 import { Client, LegalEntityVm } from '../apiClients';
-import { ddmmyyyy, getDateColumnConfig } from '../utils';
+import { ddmmyyyy, yyyymmdd, getDateColumnConfig } from '../utils';
 import { GrmDatePicker } from './Persons';
-
+import { ExportToCsv } from 'export-to-csv';
 const LegalEntityVmTable: FC = () => {
   const [createOrUpdateModalOpen, setCreateOrUpdateModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -96,7 +96,7 @@ const LegalEntityVmTable: FC = () => {
   );
 
   const disableEditing = (row: MRT_Row<LegalEntityVm>, cell: MRT_Cell<LegalEntityVm>) => {
-    const disableFieldsList = ['certStartDate', 'certEndDate', 'insStartDate', 'insEndDate' , 'certNumber'];
+    const disableFieldsList = ['certStartDate', 'certEndDate', 'insStartDate', 'insEndDate', 'certNumber'];
     console.log(cell.column.id);
     if (disableFieldsList.includes(cell.column.id) && cell.getValue<Date | undefined>()) {
       return true;
@@ -140,10 +140,10 @@ const LegalEntityVmTable: FC = () => {
     [validationErrors],
   );
 
-  console.log("TTT DATA" ,tableData);
+  console.log("TTT DATA", tableData);
 
   const getMembershipTypeStr = (num: number): string | null => {
-    switch (num) {  
+    switch (num) {
       case 0:
         return "Действ.";
       case 1:
@@ -158,58 +158,93 @@ const LegalEntityVmTable: FC = () => {
       {
         accessorKey: 'id',
         header: 'Id',
-        size: 20,
+        size: 5,
         enableEditing: false,
         Cell: ({ cell }) => <a href={`#/legalEntity/${cell.getValue<number>()}`}>{cell.getValue<number>()}</a>,
-        },
+      },
       {
         accessorKey: 'name',
         header: 'Название',
-        size: 140,
+        size: 20,
       },
       {
         accessorKey: 'membershipType',
         header: 'Членство',
         Cell: ({ cell }) => getMembershipTypeStr(cell.getValue<number>()),
-        size: 140,
+        size: 20,
       },
       {
         accessorKey: 'votes',
         header: 'Голоса',
-        size: 140,
-          type: 'number',
+        size: 20,
+        type: 'number',
       },
       {
         accessorKey: 'inn',
         header: 'ИНН',
-        size: 140,
-       },
-       {
+        size: 20,
+      },
+      {
         accessorKey: 'email',
         header: 'Почта',
-        size: 140,
-       },
-       {
+        maxSize: 15,
+      },
+      {
         accessorKey: 'phoneNumber',
         header: 'Номер Тел.',
-        size: 140,
-       },
-       {
+        size: 20,
+      },
+      {
         accessorKey: 'certNumber',
         header: 'Номер Серт.',
-        size: 140,
-        
-       },
-       getDateColumnConfig('certStartDate', 'Начало Серт.'),
-       getDateColumnConfig('certEndDate', 'Конец Серт.' , <i style={{ color: '#6a0e17' }}>Конец Серт.</i> ),
-       getDateColumnConfig('insStartDate', 'Начало Стх'),
-       getDateColumnConfig('insEndDate', 'Конец Стх.', <i style={{ color: '#6a0e17' }}>Конец Стх.</i>),
-     
-      ],
+        size: 20,
+
+      },
+      getDateColumnConfig('certStartDate', 'Начало Серт.'),
+      getDateColumnConfig('certEndDate', 'Конец Серт.', <i style={{ color: '#6a0e17' }}>Конец Серт.</i>),
+      getDateColumnConfig('insStartDate', 'Начало Стх'),
+      getDateColumnConfig('insEndDate', 'Конец Стх.', <i style={{ color: '#6a0e17' }}>Конец Стх.</i>),
+      getDateColumnConfig('createdOn', 'Дата Создания'),
+
+    ],
     []
   );
+  // export CSV LegalEntities
+  const csvOptions = {
+    fieldSeparator: ',',
+    quoteStrings: '"',
+    decimalSeparator: '.',
+    showLabels: true,
+    useBom: true,
+    useKeysAsHeaders: false,
+    headers: columns.map((c) => c.header),
+  };
 
-console.log("this table date" , tableData);
+  const csvExporter = new ExportToCsv(csvOptions);
+
+  const handleExportRows = (rows: any) => {
+    //@ts-ignore
+    csvExporter.generateCsv(rows.map((row) => {
+      return {
+        id: row.original.id,
+        name: row.original.name,
+        membershipType: getMembershipTypeStr(+row.original.membershipType) ,
+        votes: row.original.votes,
+        inn: row.original.inn,
+        email: row.original.email ,
+        phoneNumber: row.original.phoneNumber ,
+        certNumber: row.original.certNumber,
+        certStartDate: ddmmyyyy(row.original.certStartDate) ?? '',
+        certEndDate: ddmmyyyy(row.original.certEndDate) ?? '',
+        insStartDate: ddmmyyyy(row.original.insStartDate) ?? '',
+        insEndDate: ddmmyyyy(row.original.insEndDate) ?? '',
+        createdOn: ddmmyyyy(row.original.createdOn) ?? '',
+      };
+    }));
+  };
+  // export CSV ^
+
+  const [tableLayout, setTableLayout] = useState<string>('fixed');
 
   return (
     <>
@@ -219,19 +254,32 @@ console.log("this table date" , tableData);
             muiTableHeadCellProps: {
               align: 'center',
             },
-            size: 120,
+            size: 20,
+          },
+        }}
+        muiTableProps={{
+          sx: {
+            tableLayout: tableLayout,
           },
         }}
         columns={columns}
+        defaultColumn={{
+          minSize: 5, //allow columns to get smaller than default
+          maxSize: 40, //allow columns to get larger than default
+          size: 8, //make columns wider by default
+        }}
         data={tableData}
         editingMode="modal" //default
         enableColumnOrdering
+        // enableColumnResizing
+        enableColumnDragging={false}
+        initialState={{ density: 'compact' }}
         enableEditing
         onEditingRowSave={handleSaveRowEdits}
         onEditingRowCancel={handleCancelRowEdits}
         localization={MRT_Localization_RU}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: "flex", gap: "12px" }}>
+          <Box sx={{ display: "flex", gap: "0.75rem" }}>
             <Tooltip arrow placement="left" title="Изменить">
               <IconButton onClick={() => editRow(row)}>
                 <Edit />
@@ -244,17 +292,31 @@ console.log("this table date" , tableData);
             </Tooltip>
           </Box>
         )}
-        renderTopToolbarCustomActions={() => (
-          <Button
-            color="success"
-            onClick={() => setCreateOrUpdateModalOpen(true)}
-            variant="contained"
-          >
-            Добавить
-          </Button>
+        renderTopToolbarCustomActions={({ table }) => (
+          <Box sx={{ display: "flex", gap: "1rem" }} >
+            <Button
+              color="success"
+              onClick={() => setCreateOrUpdateModalOpen(true)}
+              variant="contained"
+            >
+              Добавить
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleExportRows(table.getFilteredRowModel().rows);
+              }
+              }>Экспорт</Button>
+              <Button
+              variant="contained"
+              onClick={() => {
+                setTableLayout(tableLayout === 'auto' ? 'fixed' : 'auto');
+              }
+              }>{tableLayout === 'auto' ? 'Fix' : 'Scroll'}</Button>
+          </Box>
         )}
       />
-      <CreateNewAccountModal
+      < CreateNewAccountModal
         columns={columns}
         open={createOrUpdateModalOpen}
         onClose={() => { setEditLegalEntitiesRow(undefined); setCreateOrUpdateModalOpen(false); }}
@@ -275,7 +337,7 @@ export const CreateNewAccountModal: FC<{
   onSubmit: (values: LegalEntityVm) => void;
   open: boolean;
   legalEntitiesRow?: MRT_Row<LegalEntityVm>;
-}> = ({open, columns, onClose, onSubmit, legalEntitiesRow }) => {
+}> = ({ open, columns, onClose, onSubmit, legalEntitiesRow }) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ""] = legalEntitiesRow?.getValue(column.accessorKey ?? '');
@@ -328,12 +390,12 @@ export const CreateNewAccountModal: FC<{
               defaultValue={legalEntitiesRow?.getValue(columns[2].accessorKey ?? '')}
               select
               children={[
-              (<MenuItem key={0} value={0}>
-                {'Действ.'}
-              </MenuItem>),
-              (<MenuItem key={1} value={1}>
-                {'Не действ.'}
-              </MenuItem>)]}
+                (<MenuItem key={0} value={0}>
+                  {'Действ.'}
+                </MenuItem>),
+                (<MenuItem key={1} value={1}>
+                  {'Не действ.'}
+                </MenuItem>)]}
               onChange={(e) =>
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
@@ -365,9 +427,9 @@ export const CreateNewAccountModal: FC<{
               onChange={(e) =>
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
-              
+
             />
-              <TextField
+            <TextField
               key={columns[6].accessorKey}
               label={columns[6].header}
               name={columns[6].accessorKey}
@@ -375,18 +437,7 @@ export const CreateNewAccountModal: FC<{
               onChange={(e) =>
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
-              
-            />
-            <TextField
-              key={columns[7].accessorKey}
-              label={columns[7].header}
-              name={columns[7].accessorKey}
-              disabled={legalEntitiesRow?.getValue(columns[7].accessorKey ?? '')}
-              defaultValue={legalEntitiesRow?.getValue(columns[7].accessorKey ?? '')}
-              onChange={(e) =>
-                setValues({ ...values, [e.target.name]: e.target.value })
-              }
-              
+
             />
             <GrmDatePicker
               label={columns[8].header}
@@ -420,14 +471,14 @@ export const CreateNewAccountModal: FC<{
                 setValues({ ...values, [columns[11].accessorKey as string]: newVal })
               }
             />
-           
+
           </Stack>
         </form>
       </DialogContent>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Отмена</Button>
         <Button color="success" onClick={handleSubmit} variant="contained">
-        {(legalEntitiesRow?.getValue(columns[0].accessorKey ?? '') && 'Изменить') as string || 'Добавить'}
+          {(legalEntitiesRow?.getValue(columns[0].accessorKey ?? '') && 'Изменить') as string || 'Добавить'}
         </Button>
       </DialogActions>
     </Dialog>
