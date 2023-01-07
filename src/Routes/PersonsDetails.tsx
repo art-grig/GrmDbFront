@@ -26,6 +26,7 @@ import { useParams } from "react-router-dom";
 import { ddmmyyyy, getDateColumnConfig } from '../utils';
 import { Attestation, Client, PersonVm } from '../apiClients';
 import { CreateNewInsModal } from './LegalEntityDetails';
+import { GetApiClient } from '../Utils/config';
 import { GrmDatePicker } from './Persons';
 import "../Styles/style.css"
 
@@ -35,7 +36,7 @@ const PersonDetails: React.FC = () => {
     const [attestation, setAttestation] = useState<Attestation[]>([]);
     const [createOrUpdateModalOpen, setCreateOrUpdateModalOpen] = useState(false);
     const { employeeId } = useParams();
-    const apiClient = new Client('http://localhost:5200');
+    const apiClient = GetApiClient();
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
     }>({});
