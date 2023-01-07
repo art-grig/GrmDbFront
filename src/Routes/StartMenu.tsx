@@ -10,7 +10,7 @@ function StartMenu() {
     <div className="startmenu">
         <>
           <h1>Добро пожаловать </h1>
-          { isLoggedIn() && (<><h2>
+          { !isLoggedIn() && (<><h2>
             Для продолжение пожалуйста
           </h2><a href="#/login">Войдите</a></>)}
           <div className="spin"></div>
