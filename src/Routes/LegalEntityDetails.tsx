@@ -35,6 +35,7 @@ import "../Styles/style.css"
 
 import logoEmail from '../images/envelope-fill.svg';
 import logoPhone from '../images/telephone-fill.svg';
+import { GetApiClient } from '../Utils/config';
 
 
 
@@ -45,7 +46,7 @@ const LegalEntityDetails: React.FC = () => {
   const [createOrUpdateModalOpen, setCreateOrUpdateModalOpen] = useState(false);
   const [createOrUpdateModalOpenIns, setCreateOrUpdateModalOpenIns] = useState(false);
   const { legalEntityId } = useParams();
-  const apiClient = new Client('http://localhost:5200');
+  const apiClient = GetApiClient();
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});

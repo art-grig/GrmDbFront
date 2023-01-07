@@ -293,6 +293,62 @@ export class Client {
     }
 
     /**
+     * @param body (optional) 
+     * @return Success
+     */
+    login(body: LoginModel | undefined , cancelToken?: CancelToken | undefined): Promise<JwtVmResponseVm> {
+        let url_ = this.baseUrl + "/api/Auth/login";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "POST",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processLogin(_response);
+        });
+    }
+
+    protected processLogin(response: AxiosResponse): Promise<JwtVmResponseVm> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = JwtVmResponseVm.fromJS(resultData200);
+            return Promise.resolve<JwtVmResponseVm>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<JwtVmResponseVm>(null as any);
+    }
+
+    /**
      * @return Success
      */
     byLegalEntityId(legalEntityId: number , cancelToken?: CancelToken | undefined): Promise<CertificationIListResponseVm> {
@@ -559,6 +615,53 @@ export class Client {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<CertificationResponseVm>(null as any);
+    }
+
+    /**
+     * @return Success
+     */
+    debug(  cancelToken?: CancelToken | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/Debug";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processDebug(_response);
+        });
+    }
+
+    protected processDebug(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
     }
 
     /**
@@ -1503,6 +1606,7 @@ export interface IAttestationResponseVm {
     data?: Attestation;
 }
 
+/** 0 = Agent, 1 = Broker, 2 = Specialist */
 export enum AttestationType {
     _0 = 0,
     _1 = 1,
@@ -1997,6 +2101,94 @@ export interface IInsuranceResponseVm {
     data?: Insurance;
 }
 
+export class JwtVm implements IJwtVm {
+    token?: string | undefined;
+
+    constructor(data?: IJwtVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.token = _data["token"];
+        }
+    }
+
+    static fromJS(data: any): JwtVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new JwtVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["token"] = this.token;
+        return data;
+    }
+}
+
+export interface IJwtVm {
+    token?: string | undefined;
+}
+
+export class JwtVmResponseVm implements IJwtVmResponseVm {
+    success?: boolean;
+    readonly generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: JwtVm;
+
+    constructor(data?: IJwtVmResponseVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            (<any>this).generatedAt = _data["generatedAt"] ? new Date(_data["generatedAt"].toString()) : <any>undefined;
+            this.userMessage = _data["userMessage"];
+            this.systemMessage = _data["systemMessage"];
+            this.data = _data["data"] ? JwtVm.fromJS(_data["data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): JwtVmResponseVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new JwtVmResponseVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["generatedAt"] = this.generatedAt ? this.generatedAt.toISOString() : <any>undefined;
+        data["userMessage"] = this.userMessage;
+        data["systemMessage"] = this.systemMessage;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IJwtVmResponseVm {
+    success?: boolean;
+    generatedAt?: Date;
+    userMessage?: string | undefined;
+    systemMessage?: string | undefined;
+    data?: JwtVm;
+}
+
 export class LegalEntity implements ILegalEntity {
     id?: number;
     isDeleted?: boolean;
@@ -2193,6 +2385,7 @@ export interface ILegalEntityBaseVm {
     insEndDate?: Date | undefined;
 }
 
+/** 0 = IndividualEnterpreneur, 1 = Company */
 export enum LegalEntityType {
     _0 = 0,
     _1 = 1,
@@ -2402,6 +2595,47 @@ export interface ILegalEntityVmResponseVm {
     data?: LegalEntityVm;
 }
 
+export class LoginModel implements ILoginModel {
+    login?: string | undefined;
+    password?: string | undefined;
+
+    constructor(data?: ILoginModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.login = _data["login"];
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): LoginModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new LoginModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["login"] = this.login;
+        data["password"] = this.password;
+        return data;
+    }
+}
+
+export interface ILoginModel {
+    login?: string | undefined;
+    password?: string | undefined;
+}
+
+/** 0 = Real, 1 = NotReal */
 export enum MembershipType {
     _0 = 0,
     _1 = 1,

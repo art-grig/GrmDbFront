@@ -25,6 +25,7 @@ import { Client, LegalEntityVm } from '../apiClients';
 import { ddmmyyyy, yyyymmdd, getDateColumnConfig } from '../utils';
 import { GrmDatePicker } from './Persons';
 import { ExportToCsv } from 'export-to-csv';
+import { GetApiClient } from '../Utils/config';
 const LegalEntityVmTable: FC = () => {
   const [createOrUpdateModalOpen, setCreateOrUpdateModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -34,7 +35,7 @@ const LegalEntityVmTable: FC = () => {
     [cellId: string]: string;
   }>({});
 
-  const apiClient = new Client('http://localhost:5200');
+  const apiClient = GetApiClient();
 
   useEffect(() => {
     const fetchLegalEntities = async () => {
@@ -140,7 +141,6 @@ const LegalEntityVmTable: FC = () => {
     [validationErrors],
   );
 
-  console.log("TTT DATA", tableData);
 
   const getMembershipTypeStr = (num: number): string | null => {
     switch (num) {
@@ -244,7 +244,7 @@ const LegalEntityVmTable: FC = () => {
   };
   // export CSV ^
 
-  const [tableLayout, setTableLayout] = useState<string>('fixed');
+  const [tableLayout, setTableLayout] = useState<string>('auto');
 
   return (
     <>

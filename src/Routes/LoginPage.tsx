@@ -2,9 +2,24 @@ import React, { useEffect } from 'react'
 import LoginForm from '../Routes/LoginForm';
 import '../Styles/loginStyle.css'
 import { useState } from 'react';
+import { authorize, isLoggedIn } from '../Utils/AuthServise';
+import { LoginModel } from '../apiClients';
+
 const LoginPage: React.FC = () => {
-  const handleSubmit = (username: string, password: string) => {
-    // handle login here
+
+  const handleSubmit = async (username: string, password: string) => {
+    const authRes = await authorize(new LoginModel({
+      login: username,
+      password: password,
+    }));
+
+    if (authRes) {
+      window.location.replace("/");
+    }
+    else {
+      
+      alert("Неправильный Логин или Пароль");
+    }
   };
   useEffect(() => {
     const timeout = 400;
@@ -17,16 +32,21 @@ const LoginPage: React.FC = () => {
   }, []);
 
 
-  return (
-    
-    <div className='loginForm'>
-      <h1>Авторизация</h1>
-    <><div className="spinLogo"></div></>
-      <LoginForm onSubmit={handleSubmit} />
 
-    </div>
-    
-  );
-};
+
+  if (!isLoggedIn()) {
+    return (
+      <div className='loginForm'>
+        <>
+          <h1>Авторизация</h1>
+          <div className="spinLogo"></div>
+          <LoginForm onSubmit={handleSubmit} />
+        </>
+      </div>
+    );
+  } else {
+    window.location.replace("/");
+    return null;
+  }}
 
 export default LoginPage;

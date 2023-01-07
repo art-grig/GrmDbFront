@@ -30,7 +30,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ru } from 'date-fns/locale'
 import { ddmmyyyy } from '../utils';
 import { ExportToCsv } from 'export-to-csv';
-
+import { GetApiClient } from "../Utils/config";
 
 const PersonVmTable: FC = () => {
   const [createOrUpdateModalOpen, setCreateOrUpdateModalOpen] = useState(false);
@@ -41,7 +41,7 @@ const PersonVmTable: FC = () => {
     [cellId: string]: string;
   }>({});
 
-  const apiClient = new Client("http://localhost:5200");
+  const apiClient = GetApiClient();
 
   function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
