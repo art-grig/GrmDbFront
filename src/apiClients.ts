@@ -2103,6 +2103,7 @@ export interface IInsuranceResponseVm {
 
 export class JwtVm implements IJwtVm {
     token?: string | undefined;
+    isAdmin?: boolean | undefined;
 
     constructor(data?: IJwtVm) {
         if (data) {
@@ -2116,6 +2117,7 @@ export class JwtVm implements IJwtVm {
     init(_data?: any) {
         if (_data) {
             this.token = _data["token"];
+            this.isAdmin = _data["isAdmin"];
         }
     }
 
@@ -2129,6 +2131,7 @@ export class JwtVm implements IJwtVm {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["token"] = this.token;
+        data["isAdmin"] = this.isAdmin;
         return data;
     }
 }

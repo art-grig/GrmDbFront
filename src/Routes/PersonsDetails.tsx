@@ -29,7 +29,10 @@ import { CreateNewInsModal } from './LegalEntityDetails';
 import { GetApiClient } from '../Utils/config';
 import { GrmDatePicker } from './Persons';
 import "../Styles/style.css"
+import { darken } from '@mui/material';
+import { getIsAdmin } from '../Utils/AuthServise';
 
+const isAdmin = getIsAdmin();
 
 const PersonDetails: React.FC = () => {
     const [employee, setEmployee] = useState<PersonVm>();
@@ -177,22 +180,29 @@ const PersonDetails: React.FC = () => {
                             size: 120,
                         },
                     }}
+                    muiTableBodyProps={{
+                        sx: (theme) => ({
+                          '& tr:nth-of-type(odd)': {
+                            backgroundColor: darken(theme.palette.background.default, 0.1),
+                          },
+                        }),
+                      }}
                     columns={columns}
                     data={attestation}
                     editingMode="modal" //default
                     enableColumnOrdering
-                    enableEditing
+                    enableEditing={isAdmin}
                     onEditingRowSave={handleSaveRowEdits}
                     onEditingRowCancel={handleCancelRowEdits}
                     localization={MRT_Localization_RU}
                     renderRowActions={({ row, table }) => (
                         <Box sx={{ display: "flex", gap: "12px" }}>
-                            <Tooltip arrow placement="left" title="Изменить">
+                           <Tooltip arrow placement="left" title="Изменить">
                                 <IconButton onClick={() => editRowAtt(row)}>
                                     <Edit />
                                 </IconButton>
-                            </Tooltip>
-                            <Tooltip arrow placement="right" title="Удалить">
+                            </Tooltip> 
+                             <Tooltip arrow placement="right" title="Удалить">
                                 <IconButton color="error" onClick={() => handleDeleteRowAtt(row)}>
                                     <Delete />
                                 </IconButton>
@@ -200,13 +210,15 @@ const PersonDetails: React.FC = () => {
                         </Box>
                     )}
                     renderTopToolbarCustomActions={() => (
-                        <Button
-                            color="success"
-                            onClick={() => setCreateOrUpdateModalOpen(true)}
-                            variant="contained"
-                        >
-                            Добавить
-                        </Button>
+                        <Box sx={{ display: "flex", gap: "1rem" }} >
+                            {isAdmin ? <Button
+                                color="success"
+                                onClick={() => setCreateOrUpdateModalOpen(true)}
+                                variant="contained"
+                            >
+                                Добавить
+                            </Button> : <></>}
+                        </Box>
                     )}
                 />
                 <CreateNewAttModal
