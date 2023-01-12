@@ -21,11 +21,15 @@ import {
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 import { data, states } from '../Components/makeData';
-import { Client, LegalEntityVm } from '../apiClients';
+import { Client, JwtVm, JwtVmResponseVm, LegalEntityVm, LoginModel } from '../apiClients';
 import { ddmmyyyy, yyyymmdd, getDateColumnConfig } from '../utils';
 import { GrmDatePicker } from './Persons';
 import { ExportToCsv } from 'export-to-csv';
 import { GetApiClient } from '../Utils/config';
+import { authorize, getIsAdmin, isLoggedIn } from '../Utils/AuthServise';
+import "../Styles/style.css"
+import { darken } from '@mui/material';
+
 const LegalEntityVmTable: FC = () => {
   const [createOrUpdateModalOpen, setCreateOrUpdateModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -36,7 +40,6 @@ const LegalEntityVmTable: FC = () => {
   }>({});
 
   const apiClient = GetApiClient();
-
   useEffect(() => {
     const fetchLegalEntities = async () => {
       const legalEntitiesResp = await apiClient.legalEntityGET();
@@ -45,6 +48,7 @@ const LegalEntityVmTable: FC = () => {
     fetchLegalEntities();
   }, []);
 
+  const isAdmin = getIsAdmin();
 
   const handleCreateOrUpdateNewRow = async (model: LegalEntityVm) => {
     model.id = model.id ?? 0;
@@ -154,6 +158,7 @@ const LegalEntityVmTable: FC = () => {
   }
 
   const columns = useMemo<MRT_ColumnDef<LegalEntityVm>[]>(
+    
     () => [
       {
         accessorKey: 'id',
@@ -206,8 +211,8 @@ const LegalEntityVmTable: FC = () => {
       getDateColumnConfig('insEndDate', 'Конец Стх.', <i style={{ color: '#6a0e17' }}>Конец Стх.</i>),
       getDateColumnConfig('createdOn', 'Дата Создания'),
 
-    ],
-    []
+    ] ,
+    [],
   );
   // export CSV LegalEntities
   const csvOptions = {
@@ -228,11 +233,11 @@ const LegalEntityVmTable: FC = () => {
       return {
         id: row.original.id,
         name: row.original.name,
-        membershipType: getMembershipTypeStr(+row.original.membershipType) ,
+        membershipType: getMembershipTypeStr(+row.original.membershipType),
         votes: row.original.votes,
         inn: row.original.inn,
-        email: row.original.email ,
-        phoneNumber: row.original.phoneNumber ,
+        email: row.original.email,
+        phoneNumber: row.original.phoneNumber,
         certNumber: row.original.certNumber,
         certStartDate: ddmmyyyy(row.original.certStartDate) ?? '',
         certEndDate: ddmmyyyy(row.original.certEndDate) ?? '',
@@ -245,41 +250,55 @@ const LegalEntityVmTable: FC = () => {
   // export CSV ^
 
   const [tableLayout, setTableLayout] = useState<string>('auto');
+ 
 
   return (
-    <>
-      <MaterialReactTable
+    <> 
+       <MaterialReactTable 
+       columns={columns}
+       data={tableData}
         displayColumnDefOptions={{
-          'mrt-row-actions': {
+           'mrt-row-actions': {
+            
             muiTableHeadCellProps: {
               align: 'center',
             },
             size: 20,
           },
+     
+        }} 
+       
+        muiTableBodyProps={{
+          sx: (theme) => ({
+            '& tr:nth-of-type(odd)': {
+              backgroundColor: darken(theme.palette.background.default, 0.1),
+            },
+          }),
         }}
         muiTableProps={{
           sx: {
             tableLayout: tableLayout,
           },
         }}
-        columns={columns}
+        enableRowActions={isAdmin}
+        
         defaultColumn={{
           minSize: 5, //allow columns to get smaller than default
           maxSize: 40, //allow columns to get larger than default
           size: 8, //make columns wider by default
         }}
-        data={tableData}
+        
         editingMode="modal" //default
         enableColumnOrdering
-        // enableColumnResizing
         enableColumnDragging={false}
         initialState={{ density: 'compact' }}
-        enableEditing
+        enableEditing={isAdmin}      
         onEditingRowSave={handleSaveRowEdits}
-        onEditingRowCancel={handleCancelRowEdits}
+        onEditingRowCancel={handleCancelRowEdits} 
         localization={MRT_Localization_RU}
-        renderRowActions={({ row, table }) => (
-          <Box sx={{ display: "flex", gap: "0.75rem" }}>
+        
+        renderRowActions={({ row, table }) =>
+            <Box sx={{ display: "flex", gap: "0.75rem" }}>
             <Tooltip arrow placement="left" title="Изменить">
               <IconButton onClick={() => editRow(row)}>
                 <Edit />
@@ -291,23 +310,28 @@ const LegalEntityVmTable: FC = () => {
               </IconButton>
             </Tooltip>
           </Box>
-        )}
+        }
         renderTopToolbarCustomActions={({ table }) => (
           <Box sx={{ display: "flex", gap: "1rem" }} >
-            <Button
+
+            {isAdmin ? <Button
               color="success"
               onClick={() => setCreateOrUpdateModalOpen(true)}
               variant="contained"
             >
               Добавить
-            </Button>
-            <Button
+            </Button> : <></>
+            }
+
+             <Button
               variant="contained"
               onClick={() => {
                 handleExportRows(table.getFilteredRowModel().rows);
               }
               }>Экспорт</Button>
-              <Button
+
+            
+            <Button
               variant="contained"
               onClick={() => {
                 setTableLayout(tableLayout === 'auto' ? 'fixed' : 'auto');
@@ -315,14 +339,15 @@ const LegalEntityVmTable: FC = () => {
               }>{tableLayout === 'auto' ? 'Fix' : 'Scroll'}</Button>
           </Box>
         )}
-      />
+      /> 
       < CreateNewAccountModal
         columns={columns}
         open={createOrUpdateModalOpen}
         onClose={() => { setEditLegalEntitiesRow(undefined); setCreateOrUpdateModalOpen(false); }}
         onSubmit={handleCreateOrUpdateNewRow}
         legalEntitiesRow={editLegalEntitiesRow}
-      />
+      /> 
+      
     </>
   );
 };
@@ -363,8 +388,10 @@ export const CreateNewAccountModal: FC<{
 
   return (
     <Dialog open={open}>
+
       <DialogTitle textAlign="center">{(legalEntitiesRow && 'Редактирование Юр. Лица') || 'Добавление Юр. Лица'}</DialogTitle>
       <DialogContent>
+        
         <form onSubmit={(e) => e.preventDefault()}>
           <Stack
             sx={{

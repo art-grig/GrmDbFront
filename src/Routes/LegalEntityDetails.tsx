@@ -32,12 +32,13 @@ import { table } from 'console';
 import { id } from 'date-fns/locale';
 
 import "../Styles/style.css"
-
+import { darken } from '@mui/material';
 import logoEmail from '../images/envelope-fill.svg';
 import logoPhone from '../images/telephone-fill.svg';
 import { GetApiClient } from '../Utils/config';
+import { getIsAdmin } from '../Utils/AuthServise';
 
-
+const isAdmin = getIsAdmin();
 
 const LegalEntityDetails: React.FC = () => {
   const [legalEntity, setLegalEntity] = useState<LegalEntityVm>();
@@ -99,7 +100,7 @@ const LegalEntityDetails: React.FC = () => {
     setEditLegalEntitiesRowCert(row);
     setCreateOrUpdateModalOpen(true);
   }
-  
+
 
   const handleDeleteRowCert = useCallback(
     async (row: MRT_Row<Certification>) => {
@@ -149,15 +150,15 @@ const LegalEntityDetails: React.FC = () => {
   };
 
   const handleSaveRowEditsIns: MaterialReactTableProps<Insurance>['onEditingRowSave'] =
-  async ({ exitEditingMode, row, values }) => {
-    if (!Object.keys(validationErrors).length) {
-      insurance[row.index] = values;
-      await apiClient.insurancePOST(insurance[row.index]);
-      setInsurance([...insurance]);
-      exitEditingMode(); //required to exit editing mode and close modal
-    }
-  };
-  
+    async ({ exitEditingMode, row, values }) => {
+      if (!Object.keys(validationErrors).length) {
+        insurance[row.index] = values;
+        await apiClient.insurancePOST(insurance[row.index]);
+        setInsurance([...insurance]);
+        exitEditingMode(); //required to exit editing mode and close modal
+      }
+    };
+
 
   const editRowInsurance = (row: MRT_Row<Insurance>) => {
     setEditLegalEntitiesRowInsurance(row);
@@ -192,7 +193,7 @@ const LegalEntityDetails: React.FC = () => {
   }
 
   // COLUMNS 
-  
+
   const columns = useMemo<MRT_ColumnDef<Certification>[]>(
     () => [
       {
@@ -251,16 +252,24 @@ const LegalEntityDetails: React.FC = () => {
               size: 120,
             },
           }}
+          muiTableBodyProps={{
+            sx: (theme) => ({
+              '& tr:nth-of-type(odd)': {
+                backgroundColor: darken(theme.palette.background.default, 0.1),
+              },
+            }),
+          }}
           columns={columns}
           data={certifications}
           editingMode="modal" //default
           enableColumnOrdering
-          enableEditing
+          enableEditing={isAdmin}
           onEditingRowSave={handleSaveRowEdits}
           onEditingRowCancel={handleCancelRowEdits}
           localization={MRT_Localization_RU}
           renderRowActions={({ row, table }) => (
             <Box sx={{ display: "flex", gap: "12px" }}>
+
               <Tooltip arrow placement="left" title="Изменить">
                 <IconButton onClick={() => editRowSertifaction(row)}>
                   <Edit />
@@ -274,13 +283,15 @@ const LegalEntityDetails: React.FC = () => {
             </Box>
           )}
           renderTopToolbarCustomActions={() => (
-            <Button
-              color="success"
-              onClick={() => setCreateOrUpdateModalOpen(true)}
-              variant="contained"
-            >
-              Добавить
-            </Button>
+            <Box sx={{ display: "flex", gap: "1rem" }} >
+              {isAdmin ? <Button
+                color="success"
+                onClick={() => setCreateOrUpdateModalOpen(true)}
+                variant="contained"
+              >
+                Добавить
+              </Button> : <></>}
+            </Box>
           )}
         />
         <CreateNewCertModal
@@ -303,14 +314,21 @@ const LegalEntityDetails: React.FC = () => {
               size: 120,
             },
           }}
+          muiTableBodyProps={{
+            sx: (theme) => ({
+              '& tr:nth-of-type(odd)': {
+                backgroundColor: darken(theme.palette.background.default, 0.1),
+              },
+            }),
+          }}
           columns={columnsATT}
           data={insurance}
           editingMode="modal" //default
           enableColumnOrdering
-          enableEditing
+          enableEditing={isAdmin}
           // onEditingRowSave={handleSaveRowEdits}
           // onEditingRowCancel={handleCancelRowEdits}
-          localization={MRT_Localization_RU}   
+          localization={MRT_Localization_RU}
           renderRowActions={({ row, table }) => (
             <Box sx={{ display: "flex", gap: "12px" }}>
               <Tooltip arrow placement="left" title="Изменить">
@@ -326,13 +344,15 @@ const LegalEntityDetails: React.FC = () => {
             </Box>
           )}
           renderTopToolbarCustomActions={() => (
-            <Button
-              color="success"
-              onClick={() => setCreateOrUpdateModalOpenIns(true)}
-              variant="contained"
-            >
-              Добавить
-            </Button>
+            <Box sx={{ display: "flex", gap: "1rem" }} >
+              {isAdmin ? <Button
+                color="success"
+                onClick={() => setCreateOrUpdateModalOpenIns(true)}
+                variant="contained"
+              >
+                Добавить
+              </Button> : <></>}
+            </Box>
           )}
         />
         <CreateNewInsModal
@@ -495,7 +515,7 @@ export const CreateNewInsModal: FC<{
                 setValues({ ...values, [columns[2].accessorKey as string]: newVal })
               }
             />
-           
+
 
 
 

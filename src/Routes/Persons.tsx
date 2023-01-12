@@ -31,7 +31,8 @@ import { ru } from 'date-fns/locale'
 import { ddmmyyyy } from '../utils';
 import { ExportToCsv } from 'export-to-csv';
 import { GetApiClient } from "../Utils/config";
-
+import { getIsAdmin } from "../Utils/AuthServise";
+import { darken } from '@mui/material';
 const PersonVmTable: FC = () => {
   const [createOrUpdateModalOpen, setCreateOrUpdateModalOpen] = useState(false);
   const [tableData, setTableData] = useState<PersonVm[]>([]);
@@ -42,6 +43,7 @@ const PersonVmTable: FC = () => {
   }>({});
 
   const apiClient = GetApiClient();
+  const isAdmin = getIsAdmin();
 
   function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -235,9 +237,8 @@ const PersonVmTable: FC = () => {
     useKeysAsHeaders: false,
     headers: columns.map((c) => c.header),
   };
-  
-  const csvExporter = new ExportToCsv(csvOptions);
 
+  const csvExporter = new ExportToCsv(csvOptions);
   const handleExportRows = (rows: any) => {
     //@ts-ignore
     csvExporter.generateCsv(rows.map((row) => {
@@ -266,16 +267,24 @@ const PersonVmTable: FC = () => {
             size: 120,
           },
         }}
+        muiTableBodyProps={{
+          sx: (theme) => ({
+            '& tr:nth-of-type(odd)': {
+              backgroundColor: darken(theme.palette.background.default, 0.1),
+            },
+          }),
+        }}
         columns={columns}
         data={tableData}
         editingMode="modal" //default
         enableColumnOrdering
-        enableEditing
+        enableEditing={isAdmin}
         onEditingRowSave={handleSaveRowEdits}
         onEditingRowCancel={handleCancelRowEdits}
         localization={MRT_Localization_RU}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: "flex", gap: "1rem" }}>
+
             <Tooltip arrow placement="left" title="Изменить">
               <IconButton onClick={() => editRow(row)}>
                 <Edit />
@@ -286,25 +295,25 @@ const PersonVmTable: FC = () => {
                 <Delete />
               </IconButton>
             </Tooltip>
+
           </Box>
         )}
         renderTopToolbarCustomActions={({ table }) => (
           <Box sx={{ display: "flex", gap: "1rem" }} >
-          
-          <Button
-            color="success"
-            onClick={() => setCreateOrUpdateModalOpen(true)}
-            variant="contained"
-          >
-            Добавить
-          </Button>
-          <Button 
-            variant="contained"
-            onClick={() => 
-            { 
-              handleExportRows(table.getFilteredRowModel().rows);
-            } 
-          }>Экспорт</Button>
+
+            {isAdmin ? <Button
+              color="success"
+              onClick={() => setCreateOrUpdateModalOpen(true)}
+              variant="contained"
+            >
+              Добавить
+            </Button> : <></>}
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleExportRows(table.getFilteredRowModel().rows);
+              }
+              }>Экспорт</Button>
           </Box>
         )}
       />
@@ -341,12 +350,12 @@ export const GrmDatePicker: FC<{
         value={value}
         onChange={handleChange}
         renderInput={(params) => <TextField {...params}
-        inputProps={
-          { 
-            ...params.inputProps, 
-            placeholder: "дд.мм.гггг" 
-          }
-        } />}
+          inputProps={
+            {
+              ...params.inputProps,
+              placeholder: "дд.мм.гггг"
+            }
+          } />}
       />
     </LocalizationProvider>
   )
@@ -449,7 +458,7 @@ export const CreateOrUpdatePersonModal: FC<{
                 setValues({ ...values, [e.target.name]: e.target.value })
               }
             />
-              <TextField
+            <TextField
               key={columns[5].accessorKey}
               label={columns[5].header}
               name={columns[5].accessorKey}
@@ -474,7 +483,7 @@ export const CreateOrUpdatePersonModal: FC<{
                 setValues({ ...values, [columns[8].accessorKey as string]: newVal })
               }
             />
-          
+
           </Stack>
         </form>
       </DialogContent>

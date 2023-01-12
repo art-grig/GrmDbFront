@@ -10,6 +10,12 @@ export const isLoggedIn = (): boolean => {
   }
 };
 
+// test admin access
+
+export const getIsAdmin = (): boolean => {
+  return localStorage.getItem('isAdmin')?.toLowerCase() === 'true';
+}
+
 export const getAuthToken = (): string | null => {
   return localStorage.getItem('token');
 };
@@ -18,8 +24,10 @@ export const authorize = async (loginModel: LoginModel): Promise<boolean> => {
   const client = GetApiClient();;
   try {
     const response = await client.login(loginModel);
+    console.log(JSON.stringify(response));
     if (response.success) {
       localStorage.setItem('token', response.data?.token ?? '');
+      localStorage.setItem('isAdmin', response.data?.isAdmin?.toString() ?? 'false');
       return true;
     }
     else {
